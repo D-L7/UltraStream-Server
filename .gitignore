@@ -1,0 +1,24 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Binaries & large downloads
+ffmpeg/
+aria2c/
+Downloads/
+*.zip
+*.tar.gz
+*.rar
+
+# Temporary & QR output
+mobile_qr.png
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
