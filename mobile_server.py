@@ -578,7 +578,8 @@ MOBILE_HTML = """
                 <div class="step-title">1️⃣ أدخل رابط الفيديو المراد تحويله وتنزيله:</div>
                 <div class="input-wrapper">
                     <input type="text" id="videoUrl" placeholder="https://..." required autocomplete="off" oninput="handleUrlInput()" onpaste="setTimeout(handleUrlInput, 50)" onchange="handleUrlInput()">
-                    <button class="paste-btn" onclick="handleUrlInput()" style="left: 75px; background: linear-gradient(135deg, #00F0FF, #00A3FF); color: #000;">🔍 تحليل</button>
+                    <button class="paste-btn" type="button" onclick="handleUrlInput(true)" style="left: 75px; background: linear-gradient(135deg, #00F0FF, #00A3FF); color: #000;">🔍 تحليل</button>
+
                     <button class="paste-btn" onclick="pasteClipboard()">📋 لصق</button>
                 </div>
             </div>
@@ -703,7 +704,7 @@ MOBILE_HTML = """
                 const input = document.getElementById('videoUrl');
                 if (text && input) {
                     input.value = text;
-                    handleUrlInput();
+                    handleUrlInput(true);
                 }
             } catch (err) {
                 alert('يرجى لصق الرابط يدويًا داخل الخانة.');
@@ -737,20 +738,20 @@ MOBILE_HTML = """
             renderQualityCards();
         }
 
-        async function handleUrlInput() {
+        async function handleUrlInput(force = false) {
             const input = document.getElementById('videoUrl');
             const box = document.getElementById('previewBox');
             if (!input || !box) return;
 
             let rawVal = input.value.trim();
-            if (!rawVal || rawVal.length < 5) {
+            if (!rawVal || rawVal.length < 4) {
                 box.style.display = 'none';
                 currentFetchedUrl = '';
                 return;
             }
 
             let url = normalizeUrl(rawVal);
-            if (url === currentFetchedUrl) return;
+            if (!force && url === currentFetchedUrl) return;
 
             // Highlight platform badge
             document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
@@ -792,6 +793,7 @@ MOBILE_HTML = """
                 document.getElementById('previewMeta').innerText = 'اختر الجودة بالأسفل واضغط زر التحميل';
             }
         }
+
 
         async function startDownload() {
             const input = document.getElementById('videoUrl');
