@@ -1,9 +1,10 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# Install ffmpeg, aria2, and system dependencies
+# Install ffmpeg, aria2, nodejs (JS runtime for yt-dlp), and system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     aria2 \
+    nodejs \
     curl \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -22,3 +23,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "120", "wsgi:application"]
+

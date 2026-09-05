@@ -676,6 +676,15 @@ MOBILE_HTML = """
         function normalizeUrl(rawUrl) {
             if (!rawUrl) return '';
             let url = rawUrl.trim();
+            
+            // Smart Youtube Video ID / Shortened URL normalizer
+            if (!url.includes('http://') && !url.includes('https://') && !url.includes('youtube.com') && !url.includes('youtu.be') && !url.includes('tiktok.com') && !url.includes('instagram.com') && !url.includes('twitter.com') && !url.includes('x.com') && !url.includes('facebook.com') && !url.includes('fb.watch')) {
+                let cleanPart = url.split('?')[0].split('&')[0];
+                if (cleanPart.length === 11 || (url.includes('?') && cleanPart.length <= 12)) {
+                    return 'https://www.youtube.com/watch?v=' + url;
+                }
+            }
+
             if (url.startsWith('u.be/')) {
                 url = 'youtu.be/' + url.substring(5);
             }
@@ -684,6 +693,7 @@ MOBILE_HTML = """
             }
             return url;
         }
+
 
         async function pasteClipboard() {
             try {
@@ -879,15 +889,23 @@ MOBILE_HTML = """
 
 
 
-def normalize_url(url):
-    if not url:
+def normalize_url(raw_url):
+    if not raw_url:
         return ""
-    url = url.strip()
+    url = raw_url.strip()
+
+    # Smart Youtube Video ID / Shortened URL normalizer
+    if not any(domain in url for domain in ["http://", "https://", "youtube.com", "youtu.be", "tiktok.com", "instagram.com", "twitter.com", "x.com", "facebook.com", "fb.watch"]):
+        clean_part = url.split("?")[0].split("&")[0]
+        if len(clean_part) == 11 or ("?" in url and len(clean_part) <= 12):
+            return f"https://www.youtube.com/watch?v={url}"
+
     if url.startswith("u.be/"):
         url = "youtu.be/" + url[5:]
     if not (url.startswith("http://") or url.startswith("https://")):
         url = "https://" + url
     return url
+
 
 @app.route('/')
 def index():
