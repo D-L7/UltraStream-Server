@@ -7,7 +7,7 @@ import threading
 import subprocess
 import mimetypes
 from urllib.parse import quote
-from flask import Flask, render_template_string, request, jsonify, send_file
+from flask import Flask, render_template_string, request, jsonify, send_file, make_response
 
 try:
     import qrcode
@@ -909,7 +909,12 @@ def normalize_url(raw_url):
 
 @app.route('/')
 def index():
-    return render_template_string(MOBILE_HTML)
+    resp = make_response(render_template_string(MOBILE_HTML))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
+
 
 @app.route('/api/preview')
 def api_preview():
