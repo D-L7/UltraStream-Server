@@ -43,18 +43,24 @@ MOBILE_HTML = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ألترا ستريم 8K برو - UltraStream 8K Pro 🚀</title>
     <link rel="icon" href="/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="/logo.png">
-    <link rel="manifest" href="data:application/json,{ %22name%22:%22UltraStream 8K Pro%22, %22short_name%22:%22UltraStream%22, %22display%22:%22standalone%22, %22theme_color%22:%22%230A0B10%22 }">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0A0B10">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UltraStream">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0A0B10;
-            --card-bg: rgba(18, 20, 32, 0.75);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-active: #00F0FF;
+            --bg-primary: #06070B;
+            --card-bg: rgba(15, 17, 28, 0.85);
+            --border-color: rgba(255, 255, 255, 0.1);
             --accent-cyan: #00F0FF;
-            --accent-purple: #7000FF;
+            --accent-purple: #9D00FF;
             --accent-green: #00FF88;
+            --accent-gold: #FFB800;
             --text-main: #FFFFFF;
             --text-muted: #94A3B8;
         }
@@ -70,8 +76,9 @@ MOBILE_HTML = """
         body {
             background-color: var(--bg-primary);
             background-image: 
-                radial-gradient(circle at 15% 15%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(0, 240, 255, 0.12) 0%, transparent 45%);
+                radial-gradient(circle at 10% 20%, rgba(157, 0, 255, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.18) 0%, transparent 45%),
+                linear-gradient(180deg, #06070B 0%, #0C0E17 100%);
             background-attachment: fixed;
             color: var(--text-main);
             padding: 20px 15px;
@@ -80,61 +87,91 @@ MOBILE_HTML = """
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
             width: 100%;
-            max-width: 620px;
+            max-width: 600px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        /* Glassmorphism Header */
+        /* PWA Install Banner */
+        .pwa-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(157, 0, 255, 0.15));
+            border: 1px solid var(--accent-cyan);
+            border-radius: 16px;
+            padding: 12px 16px;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .pwa-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #FFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pwa-btn {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #FFF;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 240, 255, 0.4);
+        }
+
+        /* Header */
         .header {
             text-align: center;
-            padding: 24px 20px;
+            padding: 28px 20px;
             background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
         }
 
         .logo-img {
-            width: 75px;
-            height: 75px;
-            border-radius: 20px;
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
-            transition: transform 0.4s ease;
+            width: 85px;
+            height: 85px;
+            border-radius: 24px;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+            animation: logoGlow 3s ease-in-out infinite alternate;
         }
 
-        .logo-img:hover {
-            transform: scale(1.08) rotate(3deg);
+        @keyframes logoGlow {
+            0% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.4); transform: scale(1); }
+            100% { box-shadow: 0 0 35px rgba(157, 0, 255, 0.7); transform: scale(1.04); }
         }
 
         .header h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
-            background: linear-gradient(135deg, #FFFFFF 30%, var(--accent-cyan) 100%);
+            background: linear-gradient(135deg, #FFFFFF 20%, var(--accent-cyan) 60%, var(--accent-purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
@@ -146,12 +183,12 @@ MOBILE_HTML = """
             line-height: 1.5;
         }
 
-        /* Platform Pills */
         .platforms-bar {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 8px;
+            margin-top: 4px;
         }
 
         .platform-pill {
@@ -161,26 +198,24 @@ MOBILE_HTML = """
             border-radius: 20px;
             font-size: 11px;
             color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
             transition: all 0.3s ease;
         }
 
         .platform-pill.active {
-            background: rgba(0, 240, 255, 0.15);
+            background: rgba(0, 240, 255, 0.2);
             border-color: var(--accent-cyan);
             color: var(--accent-cyan);
             font-weight: bold;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            transform: translateY(-2px);
         }
 
-        /* System Badges */
+        /* Status Bar */
         .badge-status {
             background: var(--card-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 12px 18px;
             display: flex;
             justify-content: space-between;
@@ -190,29 +225,26 @@ MOBILE_HTML = """
 
         .badge-status .gpu {
             color: var(--accent-green);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-weight: 700;
         }
 
         .badge-status .aria {
             color: var(--accent-cyan);
-            font-weight: bold;
+            font-weight: 700;
         }
 
         /* Main Form Card */
         .card {
             background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 24px;
+            border-radius: 28px;
+            padding: 26px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            gap: 18px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
         }
 
         .form-group {
@@ -225,9 +257,6 @@ MOBILE_HTML = """
             font-size: 13px;
             font-weight: 700;
             color: #E2E8F0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .input-wrapper {
@@ -238,10 +267,10 @@ MOBILE_HTML = """
 
         input[type="url"] {
             width: 100%;
-            background: rgba(10, 11, 16, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            padding: 14px 100px 14px 14px;
+            background: rgba(8, 10, 16, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
+            padding: 15px 105px 15px 15px;
             color: #FFFFFF;
             font-size: 14px;
             outline: none;
@@ -252,8 +281,8 @@ MOBILE_HTML = """
 
         input[type="url"]:focus {
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
-            background: rgba(10, 11, 16, 0.95);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            background: rgba(8, 10, 16, 0.95);
         }
 
         .paste-btn {
@@ -262,29 +291,26 @@ MOBILE_HTML = """
             background: linear-gradient(135deg, var(--accent-purple), #4F00B7);
             color: #FFFFFF;
             border: none;
-            border-radius: 10px;
-            padding: 8px 14px;
+            border-radius: 12px;
+            padding: 9px 16px;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            box-shadow: 0 4px 14px rgba(157, 0, 255, 0.4);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);
         }
 
         .paste-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(112, 0, 255, 0.5);
+            box-shadow: 0 6px 20px rgba(157, 0, 255, 0.6);
         }
 
         select {
             width: 100%;
-            background: rgba(10, 11, 16, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            padding: 14px;
+            background: rgba(8, 10, 16, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
+            padding: 15px;
             color: #FFFFFF;
             font-size: 13.5px;
             outline: none;
@@ -293,44 +319,45 @@ MOBILE_HTML = """
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2300F0FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: left 14px center;
+            background-position: left 16px center;
         }
 
         select:focus {
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
         }
 
         select option {
-            background: #121420;
+            background: #0E101A;
             color: #FFF;
-            padding: 10px;
+            padding: 12px;
         }
 
         /* Live Preview Card */
         .preview-box {
             display: none;
-            background: rgba(10, 11, 16, 0.9);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-radius: 16px;
-            padding: 12px;
+            background: rgba(8, 10, 16, 0.95);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 18px;
+            padding: 14px;
             gap: 14px;
             align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             animation: fadeIn 0.4s ease;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .preview-thumb {
-            width: 100px;
-            height: 65px;
-            border-radius: 10px;
+            width: 105px;
+            height: 70px;
+            border-radius: 12px;
             object-fit: cover;
             background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .preview-info {
@@ -342,7 +369,7 @@ MOBILE_HTML = """
         }
 
         .preview-title {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 700;
             color: var(--accent-cyan);
             white-space: nowrap;
@@ -351,34 +378,32 @@ MOBILE_HTML = """
         }
 
         .preview-meta {
-            font-size: 11px;
+            font-size: 11.5px;
             color: var(--text-muted);
         }
 
         /* Neon Action Button */
         .btn-action {
             width: 100%;
-            background: linear-gradient(135deg, #00F0FF 0%, #7000FF 100%);
+            background: linear-gradient(135deg, #00F0FF 0%, #9D00FF 100%);
             color: #FFFFFF;
             border: none;
-            border-radius: 14px;
-            padding: 16px;
-            font-size: 15px;
-            font-weight: 800;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 900;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.35);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(0, 240, 255, 0.4);
         }
 
         .btn-action:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(0, 240, 255, 0.5);
+            box-shadow: 0 18px 45px rgba(0, 240, 255, 0.6);
         }
 
         .btn-action:active {
@@ -396,20 +421,18 @@ MOBILE_HTML = """
             display: none;
             flex-direction: column;
             gap: 10px;
-            margin-top: 5px;
         }
 
         .progress-bar-bg {
-            background: rgba(10, 11, 16, 0.9);
-            height: 10px;
+            background: rgba(8, 10, 16, 0.95);
+            height: 12px;
             border-radius: 6px;
             overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .progress-bar-fill {
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-cyan));
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-green));
             background-size: 200% 100%;
             height: 100%;
             width: 0%;
@@ -423,10 +446,10 @@ MOBILE_HTML = """
         }
 
         .status-text {
-            font-size: 12px;
+            font-size: 12.5px;
             color: var(--accent-green);
             text-align: center;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         /* Download Link Button */
@@ -435,38 +458,43 @@ MOBILE_HTML = """
             background: linear-gradient(135deg, #00FF88 0%, #00B862 100%);
             color: #000000;
             text-decoration: none;
-            padding: 16px;
-            border-radius: 14px;
+            padding: 18px;
+            border-radius: 16px;
             text-align: center;
             font-weight: 900;
-            font-size: 15px;
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+            font-size: 16px;
+            box-shadow: 0 12px 35px rgba(0, 255, 136, 0.5);
             animation: pulseGlow 2s infinite ease-in-out;
         }
 
         @keyframes pulseGlow {
-            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4); }
-            50% { transform: scale(1.02); box-shadow: 0 15px 40px rgba(0, 255, 136, 0.7); }
+            0%, 100% { transform: scale(1); box-shadow: 0 12px 35px rgba(0, 255, 136, 0.5); }
+            50% { transform: scale(1.02); box-shadow: 0 16px 45px rgba(0, 255, 136, 0.8); }
         }
 
-        /* Responsive Mobile Styles */
         @media (max-width: 480px) {
             body { padding: 12px 10px; }
-            .header h1 { font-size: 22px; }
-            .logo-img { width: 60px; height: 60px; }
-            .card { padding: 18px 14px; }
-            input[type="url"] { font-size: 13px; padding-right: 90px; }
-            .btn-action { font-size: 14px; padding: 14px; }
+            .header h1 { font-size: 24px; }
+            .logo-img { width: 70px; height: 70px; }
+            .card { padding: 20px 15px; }
+            input[type="url"] { font-size: 13.5px; padding-right: 95px; }
+            .btn-action { font-size: 15px; padding: 15px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- PWA Installation Banner -->
+        <div id="pwaBanner" class="pwa-banner">
+            <div class="pwa-text">📱 مثبت كـ تطبيق للجوال والكمبيوتر</div>
+            <button class="pwa-btn" onclick="installPWA()">تثبيت الآن</button>
+        </div>
+
         <!-- Header -->
         <div class="header">
             <img src="/logo.png" alt="UltraStream Logo" class="logo-img">
             <h1>UltraStream 8K Pro</h1>
-            <p>منصة التحميل والمعالجة الذكية فائقة السرعة للأجهزة المحمولة والكمبيوتر</p>
+            <p>منصة التحميل والمعالجة الذكية فائقة السرعة للجوال والكمبيوتر</p>
             
             <div class="platforms-bar">
                 <div class="platform-pill" id="pill-yt">▶️ YouTube</div>
@@ -480,7 +508,7 @@ MOBILE_HTML = """
         <!-- Status Bar -->
         <div class="badge-status">
             <span class="gpu">⚡ تسريع كرت الشاشة: مفعّل تلقائياً</span>
-            <span class="aria">🚀 16-Thread Fast Engine</span>
+            <span class="aria">🚀 16-Thread Engine</span>
         </div>
 
         <!-- Form Card -->
@@ -538,7 +566,28 @@ MOBILE_HTML = """
     </div>
 
     <script>
-        // Platform auto detection badges highlight
+        // PWA Install Prompt Event
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwaBanner').style.display = 'flex';
+        });
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('pwaBanner').style.display = 'none';
+                }
+                deferredPrompt = null;
+            } else {
+                alert('لتثبيت التطبيق على الجوال:\n- في الآيفون (Safari): اضغط زر المشاركة 📤 ثم اختر "إضافة إلى الشاشة الرئيسية ➕".\n- في الأندرويد (Chrome): اضغط على القائمة 💬 ثم اختر "تثبيت التطبيق".');
+            }
+        }
+
+        // Auto platform highlight
         document.getElementById('videoUrl').addEventListener('input', function() {
             const url = this.value.toLowerCase();
             document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
@@ -648,6 +697,7 @@ MOBILE_HTML = """
 """
 
 
+
 @app.route('/')
 def index():
     return render_template_string(MOBILE_HTML)
@@ -753,6 +803,33 @@ def get_app_logo():
     if os.path.exists(logo_path):
         return send_file(logo_path, mimetype='image/png')
     return "", 404
+
+@app.route('/manifest.json')
+def get_manifest():
+    return jsonify({
+        "name": "UltraStream 8K Pro",
+        "short_name": "UltraStream",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#0A0B10",
+        "theme_color": "#00F0FF",
+        "orientation": "portrait",
+        "icons": [
+            {
+                "src": "/logo.png",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any maskable"
+            },
+            {
+                "src": "/logo.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable"
+            }
+        ]
+    })
+
 
 def generate_qr_code_file(url):
     """Generate high quality QR code image file safely across all Windows system paths"""
