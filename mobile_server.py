@@ -6,7 +6,9 @@ import tempfile
 import threading
 import subprocess
 import mimetypes
+from urllib.parse import quote
 from flask import Flask, render_template_string, request, jsonify, send_file
+
 try:
     import qrcode
 except Exception:
@@ -776,26 +778,28 @@ def download_file(platform, filename):
     ext = os.path.splitext(filename)[1].lower()
     if ext == '.mp4':
         mime_type = 'video/mp4'
-        safe_filename = f"video_{int(time.time())}.mp4"
     elif ext == '.mp3':
         mime_type = 'audio/mpeg'
-        safe_filename = f"audio_{int(time.time())}.mp3"
     elif ext == '.mkv':
         mime_type = 'video/x-matroska'
-        safe_filename = f"video_{int(time.time())}.mkv"
+    elif ext == '.webm':
+        mime_type = 'video/webm'
     else:
         mime_type = mimetypes.guess_type(filepath)[0] or 'application/octet-stream'
-        safe_filename = filename
 
     response = send_file(
         filepath,
         mimetype=mime_type,
         as_attachment=True,
-        download_name=safe_filename
+        download_name=filename
     )
+    
+    # RFC 5987 / UTF-8 header encoding for preserving exact Arabic & English video titles in all browsers
+    encoded_filename = quote(filename)
     response.headers["Content-Type"] = mime_type
-    response.headers["Content-Disposition"] = f'attachment; filename="{safe_filename}"'
+    response.headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
     return response
+
 
 @app.route('/logo.png')
 def get_app_logo():
