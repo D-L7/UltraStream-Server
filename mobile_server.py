@@ -601,32 +601,34 @@ MOBILE_HTML = """
             }
         }
 
-        // Auto platform highlight
-        document.getElementById('videoUrl').addEventListener('input', function() {
-            const url = this.value.toLowerCase();
-            document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
-            
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                document.getElementById('pill-yt').classList.add('active');
-            } else if (url.includes('tiktok.com')) {
-                document.getElementById('pill-tt').classList.add('active');
-            } else if (url.includes('instagram.com')) {
-                document.getElementById('pill-ig').classList.add('active');
-            } else if (url.includes('twitter.com') || url.includes('x.com')) {
-                document.getElementById('pill-tw').classList.add('active');
-            } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
-                document.getElementById('pill-fb').classList.add('active');
-            }
-            fetchPreview();
+        // Auto platform highlight & preview listener
+        const videoInput = document.getElementById('videoUrl');
+        ['input', 'change', 'paste', 'keyup', 'blur'].forEach(evt => {
+            videoInput.addEventListener(evt, function() {
+                const url = this.value.toLowerCase();
+                document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
+                
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    document.getElementById('pill-yt').classList.add('active');
+                } else if (url.includes('tiktok.com')) {
+                    document.getElementById('pill-tt').classList.add('active');
+                } else if (url.includes('instagram.com')) {
+                    document.getElementById('pill-ig').classList.add('active');
+                } else if (url.includes('twitter.com') || url.includes('x.com')) {
+                    document.getElementById('pill-tw').classList.add('active');
+                } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
+                    document.getElementById('pill-fb').classList.add('active');
+                }
+                fetchPreview();
+            });
         });
 
         async function pasteClipboard() {
             try {
                 const text = await navigator.clipboard.readText();
                 if (text) {
-                    const input = document.getElementById('videoUrl');
-                    input.value = text;
-                    input.dispatchEvent(new Event('input'));
+                    videoInput.value = text;
+                    videoInput.dispatchEvent(new Event('input'));
                 }
             } catch (err) {
                 alert('يرجى لصق الرابط يدويًا داخل الخانة.');
@@ -636,31 +638,40 @@ MOBILE_HTML = """
         let previewTimer = null;
         function fetchPreview() {
             clearTimeout(previewTimer);
-            const url = document.getElementById('videoUrl').value.trim();
-            if (!url || url.length < 12) {
-                document.getElementById('previewBox').style.display = 'none';
+            const url = videoInput.value.trim();
+            const box = document.getElementById('previewBox');
+            
+            if (!url || url.length < 10) {
+                box.style.display = 'none';
                 return;
             }
 
-            previewTimer = setTimeout(async () => {
-                const box = document.getElementById('previewBox');
-                box.style.display = 'flex';
-                document.getElementById('previewTitle').innerText = '🔍 جاري تحليل معلومات الفيديو...';
-                document.getElementById('previewMeta').innerText = 'يرجى الانتظار...';
+            box.style.display = 'flex';
+            document.getElementById('previewTitle').innerText = '🔍 جاري تحليل معلومات الفيديو...';
+            document.getElementById('previewMeta').innerText = 'يرجى الانتظار...';
 
+            previewTimer = setTimeout(async () => {
                 try {
                     const res = await fetch('/api/preview?url=' + encodeURIComponent(url));
                     const data = await res.json();
-                    if (data.success) {
+                    if (data.success && data.title) {
                         document.getElementById('previewTitle').innerText = data.title;
-                        document.getElementById('previewMeta').innerText = '👤 الناشر: ' + data.uploader + ' | ⏱️ المدة: ' + data.duration;
+                        document.getElementById('previewMeta').innerText = '👤 الناشر: ' + (data.uploader || 'عام') + ' | ⏱️ المدة: ' + (data.duration || 'غير معروف');
                         if (data.thumbnail) {
                             document.getElementById('previewThumb').src = data.thumbnail;
+                            document.getElementById('previewThumb').style.display = 'block';
                         }
+                    } else {
+                        document.getElementById('previewTitle').innerText = '🎬 فيديو جاهز للتحميل والتحويل';
+                        document.getElementById('previewMeta').innerText = 'اضغط على زر التحميل بالأسفل للبدء مباشرة';
                     }
-                } catch (e) {}
-            }, 500);
+                } catch (e) {
+                    document.getElementById('previewTitle').innerText = '🎬 فيديو جاهز للتحميل';
+                    document.getElementById('previewMeta').innerText = 'جاهز للتنزيل بنقرة واحدة';
+                }
+            }, 300);
         }
+
 
         async function startDownload() {
             const url = document.getElementById('videoUrl').value.trim();
@@ -766,20 +777,44 @@ def api_preview():
 
     try:
         import yt_dlp
-        opts = {'quiet': True, 'nocheckcertificate': True}
+        opts = {
+            'quiet': True,
+            'nocheckcertificate': True,
+            'skip_download': True,
+            'socket_timeout': 8,
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9',
+            }
+        }
         if cookies_file:
             opts['cookiefile'] = cookies_file
         with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=False)
+            if not info:
+                return jsonify({'success': False, 'error': 'Could not extract info'})
+
+            duration_str = info.get('duration_string')
+            duration_sec = info.get('duration')
+            if not duration_str and duration_sec:
+                m, s = divmod(int(duration_sec), 60)
+                h, m = divmod(m, 60)
+                duration_str = f"{h}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
+
+            thumbnail_url = info.get('thumbnail', '')
+            if not thumbnail_url and 'thumbnails' in info and info['thumbnails']:
+                thumbnail_url = info['thumbnails'][-1].get('url', '')
+
             return jsonify({
                 'success': True,
                 'title': info.get('title', 'Video'),
-                'uploader': info.get('uploader', 'Unknown'),
-                'duration': info.get('duration_string', 'N/A'),
-                'thumbnail': info.get('thumbnail', '')
+                'uploader': info.get('uploader', info.get('extractor', 'Unknown')),
+                'duration': duration_str or 'N/A',
+                'thumbnail': thumbnail_url
             })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
 
 @app.route('/api/download', methods=['POST'])
 def api_download():

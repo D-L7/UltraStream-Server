@@ -424,18 +424,16 @@ def download_video(url, quality_choice, ffmpeg_bin_dir, ffmpeg_exe_path, aria2_p
     quality_label, format_spec = get_format_option(quality_choice)
     
     if is_audio_mp3:
-        # MP3 audio mode (320kbps MP3 with Album Art Cover & Metadata)
+        # MP3 audio mode (320kbps MP3)
         ydl_opts['format'] = 'bestaudio/best'
-        ydl_opts['writethumbnail'] = True
         ydl_opts['postprocessors'] = [
             {
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '320',
-            },
-            {'key': 'FFmpegMetadata'},
-            {'key': 'EmbedThumbnail'}
+            }
         ]
+
 
     elif quality_choice == "11":
         custom_format = list_available_formats(url, ydl_opts)
