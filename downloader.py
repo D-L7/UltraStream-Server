@@ -172,9 +172,10 @@ def get_format_option(choice):
         "6": ("2K Quad HD (1440p MP4)", "bestvideo[height<=1440]+bestaudio/best[height<=1440]/best"),
         "7": ("Full HD (1080p MP4)", "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best"),
         "8": ("HD (720p MP4)", "bestvideo[height<=720]+bestaudio/best[height<=720]/best"),
-        "9": ("SD (480p / 360p MP4)", "bestvideo[height<=480]+bestaudio/best[height<=480]/best"),
+        "9": ("SD (480p MP4)", "bestvideo[height<=480]+bestaudio/best[height<=480]/best"),
         "10": ("Audio Only MP3 (320kbps Highest Quality)", "bestaudio/best"),
-        "11": ("Manual Format Code Selection", "custom")
+        "11": ("SD Low (360p MP4)", "bestvideo[height<=360]+bestaudio/best[height<=360]/best"),
+        "12": ("Manual Format Code Selection", "custom")
     }
     return formats.get(choice, formats["1"])
 
@@ -435,7 +436,7 @@ def download_video(url, quality_choice, ffmpeg_bin_dir, ffmpeg_exe_path, aria2_p
         ]
 
 
-    elif quality_choice == "11":
+    elif quality_choice == "12":
         custom_format = list_available_formats(url, ydl_opts)
         ydl_opts['format'] = custom_format
         ydl_opts['merge_output_format'] = 'mp4'

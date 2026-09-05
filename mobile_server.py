@@ -250,64 +250,161 @@ MOBILE_HTML = """
         }
 
         .step-title {
-            font-size: 14px;
+            font-size: 14.5px;
             font-weight: 800;
             color: var(--accent-cyan);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #FFFFFF;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+            flex-shrink: 0;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .input-wrapper {
-            position: relative;
+        .input-container {
             display: flex;
+            flex-direction: row;
+            gap: 10px;
+            width: 100%;
             align-items: center;
         }
 
-        input[type="url"] {
+        .input-inner {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(8, 10, 16, 0.9);
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+            border-radius: 18px;
+            padding: 0 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .input-inner:focus-within {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.35), inset 0 2px 4px rgba(0,0,0,0.5);
+            background: rgba(12, 15, 26, 0.95);
+        }
+
+        .input-link-icon {
+            font-size: 18px;
+            color: var(--accent-cyan);
+            margin-left: 8px;
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+
+        .input-inner input[type="text"] {
             width: 100%;
-            background: rgba(8, 10, 16, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            border-radius: 16px;
-            padding: 16px 105px 16px 16px;
+            background: transparent;
+            border: none;
+            padding: 14px 6px;
             color: #FFFFFF;
             font-size: 14px;
+            font-weight: 600;
             outline: none;
             direction: ltr;
             text-align: left;
-            transition: all 0.3s ease;
         }
 
-        input[type="url"]:focus {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            background: rgba(8, 10, 16, 0.95);
+        .input-inner input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+            direction: rtl;
+            text-align: right;
+            font-weight: 400;
         }
 
-        .paste-btn {
-            position: absolute;
-            left: 8px;
-            background: linear-gradient(135deg, var(--accent-purple), #4F00B7);
-            color: #FFFFFF;
+        .clear-btn {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
             border: none;
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-size: 12px;
+            color: #FFF;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 11px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            margin-right: 4px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 50, 50, 0.5);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 13px 18px;
+            border-radius: 14px;
+            font-size: 13px;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 4px 14px rgba(157, 0, 255, 0.4);
-            transition: all 0.3s ease;
+            border: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            white-space: nowrap;
         }
 
-        .paste-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(157, 0, 255, 0.6);
+        .paste-action {
+            background: linear-gradient(135deg, rgba(157, 0, 255, 0.25), rgba(157, 0, 255, 0.55));
+            border: 1px solid var(--accent-purple);
+            color: #FFFFFF;
+            box-shadow: 0 4px 15px rgba(157, 0, 255, 0.3);
+        }
+
+        .paste-action:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(157, 0, 255, 0.4), rgba(157, 0, 255, 0.8));
+            box-shadow: 0 6px 20px rgba(157, 0, 255, 0.5);
+        }
+
+        .analyze-action {
+            background: linear-gradient(135deg, #00F0FF 0%, #00A3FF 100%);
+            color: #06070B;
+            font-weight: 900;
+            box-shadow: 0 4px 16px rgba(0, 240, 255, 0.4);
+        }
+
+        .analyze-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(0, 240, 255, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
         }
 
         /* Live Video Preview Box */
@@ -381,64 +478,103 @@ MOBILE_HTML = """
 
         .qualities-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
         }
 
         .quality-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            padding: 12px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px 10px 12px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             user-select: none;
+            overflow: hidden;
         }
 
         .quality-card:hover {
             border-color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.1);
-            transform: translateY(-2px);
+            background: rgba(0, 240, 255, 0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 240, 255, 0.2);
         }
 
         .quality-card.selected {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(157, 0, 255, 0.25));
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(157, 0, 255, 0.25));
             border: 2px solid var(--accent-cyan);
-            box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
+            transform: translateY(-3px);
         }
 
-        .quality-card .icon {
-            font-size: 18px;
-            margin-bottom: 4px;
+        .card-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .quality-card.selected .card-badge {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        .icon-wrap {
+            font-size: 22px;
+            margin-bottom: 6px;
+            margin-top: 4px;
+            transition: transform 0.25s;
+        }
+
+        .quality-card:hover .icon-wrap {
+            transform: scale(1.15);
         }
 
         .quality-card .label {
             font-size: 12.5px;
             font-weight: 800;
-            color: #FFF;
+            color: #FFFFFF;
+            line-height: 1.2;
         }
 
         .quality-card .sub {
             font-size: 10.5px;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         .quality-card.audio {
             border-color: rgba(0, 255, 136, 0.3);
         }
 
+        .quality-card.audio .card-badge {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--accent-green);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
         .quality-card.audio.selected {
             border-color: var(--accent-green);
-            background: rgba(0, 255, 136, 0.2);
-            box-shadow: 0 0 16px rgba(0, 255, 136, 0.4);
+            background: rgba(0, 255, 136, 0.18);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.45);
+        }
+
+        .quality-card.audio.selected .card-badge {
+            background: var(--accent-green);
+            color: #000;
         }
 
         /* Neon Action Button */
@@ -531,14 +667,17 @@ MOBILE_HTML = """
             50% { transform: scale(1.02); box-shadow: 0 16px 45px rgba(0, 255, 136, 0.8); }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 520px) {
             body { padding: 12px 10px; }
             .header h1 { font-size: 23px; }
             .logo-img { width: 68px; height: 68px; }
             .card { padding: 18px 14px; }
-            input[type="url"] { font-size: 13.5px; padding-right: 95px; }
+            .input-container { flex-direction: column; gap: 10px; }
+            .input-inner { width: 100%; }
+            .input-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+            .action-btn { width: 100%; padding: 12px; }
             .btn-action { font-size: 15px; padding: 15px; }
-            .qualities-grid { grid-template-columns: repeat(2, 1fr); }
+            .qualities-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
     </style>
 </head>
@@ -575,12 +714,26 @@ MOBILE_HTML = """
         <div class="card">
             <!-- Step 1: Link Input -->
             <div class="form-group">
-                <div class="step-title">1️⃣ أدخل رابط الفيديو المراد تحويله وتنزيله:</div>
-                <div class="input-wrapper">
-                    <input type="text" id="videoUrl" placeholder="https://..." required autocomplete="off" oninput="handleUrlInput()" onpaste="setTimeout(handleUrlInput, 50)" onchange="handleUrlInput()">
-                    <button class="paste-btn" type="button" onclick="handleUrlInput(true)" style="left: 75px; background: linear-gradient(135deg, #00F0FF, #00A3FF); color: #000;">🔍 تحليل</button>
-
-                    <button class="paste-btn" onclick="pasteClipboard()">📋 لصق</button>
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    <span>أدخل رابط الفيديو المراد تحويله وتنزيله:</span>
+                </div>
+                <div class="input-container">
+                    <div class="input-inner">
+                        <span class="input-link-icon">🔗</span>
+                        <input type="text" id="videoUrl" placeholder="ضع رابط الفيديو هنا (YouTube, TikTok...)" required autocomplete="off" oninput="handleUrlInput()" onpaste="setTimeout(handleUrlInput, 50)" onchange="handleUrlInput()">
+                        <button class="clear-btn" id="clearBtn" type="button" onclick="clearInput()" title="مسح الرابط">✖</button>
+                    </div>
+                    <div class="input-actions">
+                        <button class="action-btn paste-action" type="button" onclick="pasteClipboard()">
+                            <span>📋</span>
+                            <span>لصق</span>
+                        </button>
+                        <button class="action-btn analyze-action" type="button" onclick="handleUrlInput(true)">
+                            <span>🔍</span>
+                            <span>تحليل</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -597,7 +750,10 @@ MOBILE_HTML = """
 
                 <!-- Step 3: Interactive Quality Options Grid -->
                 <div class="qualities-section">
-                    <div class="step-title">2️⃣ اختر الجودة المطلوبة للتحميل المباشر:</div>
+                    <div class="step-title">
+                        <span class="step-number">2</span>
+                        <span>اختر الجودة المطلوبة للتحميل المباشر:</span>
+                    </div>
                     <div class="qualities-grid" id="qualitiesGrid">
                         <!-- Quality Cards are generated dynamically -->
                     </div>
@@ -639,15 +795,17 @@ MOBILE_HTML = """
     <script>
         // Default Quality Presets
         const DEFAULT_QUALITIES = [
-            { val: '1', label: 'أعلى جودة تلقائياً', sub: 'Auto 8K / 4K MP4', icon: '🌟', default: true },
-            { val: '2', label: '8K Ultra HD', sub: '4320p MP4', icon: '🎬' },
-            { val: '5', label: '4K Ultra HD', sub: '2160p MP4', icon: '🎬' },
-            { val: '7', label: 'Full HD', sub: '1080p MP4', icon: '🎬' },
-            { val: '8', label: 'HD الجودة العالية', sub: '720p MP4', icon: '🎬' },
-            { val: '9', label: 'SD دقة متوسطة', sub: '480p MP4', icon: '🎬' },
-            { val: '10', label: 'صوت MP3 فقط', sub: '320kbps نقاء عالي', icon: '🎵', isAudio: true },
-            { val: '3', label: 'رفع إجباري لـ 8K', sub: 'GPU Upscale', icon: '🚀' },
-            { val: '4', label: '60 FPS مضاعفة', sub: 'FFmpeg MCI', icon: '⚡' }
+            { val: '1', label: 'أعلى جودة تلقائياً', sub: 'Auto 8K / 4K MP4', icon: '🌟', badge: 'تلقائي', default: true },
+            { val: '2', label: '8K Ultra HD', sub: '4320p MP4', icon: '💎', badge: '8K' },
+            { val: '5', label: '4K Ultra HD', sub: '2160p MP4', icon: '🎬', badge: '4K' },
+            { val: '6', label: '2K Quad HD', sub: '1440p MP4', icon: '🎥', badge: '2K' },
+            { val: '7', label: '1080p Full HD', sub: '1080p MP4', icon: '📺', badge: '1080p' },
+            { val: '8', label: '720p HD', sub: '720p MP4', icon: '📱', badge: '720p' },
+            { val: '9', label: '480p SD', sub: '480p MP4', icon: '📼', badge: '480p' },
+            { val: '11', label: '360p SD', sub: '360p MP4', icon: '💾', badge: '360p' },
+            { val: '10', label: 'صوت MP3 فقط', sub: '320kbps نقاء عالي', icon: '🎵', badge: 'MP3', isAudio: true },
+            { val: '3', label: 'رفع إجباري لـ 8K', sub: 'GPU Upscale', icon: '🚀', badge: 'تسريع' },
+            { val: '4', label: '60 FPS مضاعفة', sub: 'FFmpeg MCI', icon: '⚡', badge: 'سلاسة' }
         ];
 
         let selectedQualityVal = '1';
@@ -672,9 +830,18 @@ MOBILE_HTML = """
                 }
                 deferredPrompt = null;
             } else {
-                alert('لتثبيت التطبيق على الجوال:\\n- في الآيفون (Safari): اضغط زر المشاركة 📤 ثم اختر "إضافة إلى الشاشة الرئيسية ➕".\\n- في الأندرويد (Chrome): اضغط على القائمة 💬 ثم اختر "تثبيت التطبيق".');
+                alert('لتثبيت التطبيق على الجوال:\n- في الآيفون (Safari): اضغط زر المشاركة 📤 ثم اختر "إضافة إلى الشاشة الرئيسية ➕".\n- في الأندرويد (Chrome): اضغط على القائمة 💬 ثم اختر "تثبيت التطبيق".');
             }
+        }
 
+        function clearInput() {
+            const input = document.getElementById('videoUrl');
+            const box = document.getElementById('previewBox');
+            const clearBtn = document.getElementById('clearBtn');
+            if (input) input.value = '';
+            if (box) box.style.display = 'none';
+            if (clearBtn) clearBtn.style.display = 'none';
+            currentFetchedUrl = '';
         }
 
         function normalizeUrl(rawUrl) {
@@ -697,7 +864,6 @@ MOBILE_HTML = """
             }
             return url;
         }
-
 
         async function pasteClipboard() {
             try {
@@ -725,7 +891,8 @@ MOBILE_HTML = """
                 card.onclick = () => selectQualityCard(q.val);
                 
                 card.innerHTML = `
-                    <div class="icon">${q.icon || '🎬'}</div>
+                    ${q.badge ? `<div class="card-badge">${q.badge}</div>` : ''}
+                    <div class="icon-wrap">${q.icon || '🎬'}</div>
                     <div class="label">${q.label}</div>
                     <div class="sub">${q.sub || ''}</div>
                 `;
@@ -966,7 +1133,7 @@ def api_preview():
 
             # Build dynamic formats list from video info
             formats_list = [
-                {'val': '1', 'label': 'أعلى جودة تلقائياً', 'sub': 'Auto 8K / 4K MP4', 'icon': '🌟'}
+                {'val': '1', 'label': 'أعلى جودة تلقائياً', 'sub': 'Auto 8K / 4K MP4', 'icon': '🌟', 'badge': 'تلقائي'}
             ]
             
             heights_seen = set()
@@ -976,23 +1143,38 @@ def api_preview():
                     if h and isinstance(h, int) and h >= 144:
                         heights_seen.add(h)
 
-            # Map detected resolutions to clean user choices
+            # Map detected resolutions to clean user choices with icons & badges
             if 4320 in heights_seen or any(h >= 3000 for h in heights_seen):
-                formats_list.append({'val': '2', 'label': '8K Ultra HD', 'sub': '4320p MP4', 'icon': '🎬'})
+                formats_list.append({'val': '2', 'label': '8K Ultra HD', 'sub': '4320p MP4', 'icon': '💎', 'badge': '8K'})
             if any(2000 <= h < 3000 for h in heights_seen) or 2160 in heights_seen:
-                formats_list.append({'val': '5', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬'})
+                formats_list.append({'val': '5', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'})
             if any(1300 <= h < 2000 for h in heights_seen) or 1440 in heights_seen:
-                formats_list.append({'val': '6', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎬'})
+                formats_list.append({'val': '6', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'})
             if any(900 <= h < 1300 for h in heights_seen) or 1080 in heights_seen:
-                formats_list.append({'val': '7', 'label': 'Full HD', 'sub': '1080p MP4', 'icon': '🎬'})
+                formats_list.append({'val': '7', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'})
             if any(600 <= h < 900 for h in heights_seen) or 720 in heights_seen:
-                formats_list.append({'val': '8', 'label': 'HD الجودة العالية', 'sub': '720p MP4', 'icon': '🎬'})
-            if any(h < 600 for h in heights_seen):
-                formats_list.append({'val': '9', 'label': 'SD دقة متوسطة', 'sub': '480p MP4', 'icon': '🎬'})
+                formats_list.append({'val': '8', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'})
+            if any(400 <= h < 600 for h in heights_seen) or 480 in heights_seen:
+                formats_list.append({'val': '9', 'label': '480p SD', 'sub': '480p MP4', 'icon': '📼', 'badge': '480p'})
+            if any(144 <= h < 400 for h in heights_seen) or 360 in heights_seen:
+                formats_list.append({'val': '11', 'label': '360p SD', 'sub': '360p MP4', 'icon': '💾', 'badge': '360p'})
 
-            formats_list.append({'val': '10', 'label': 'صوت MP3 فقط', 'sub': '320kbps نقاء عالي', 'icon': '🎵', 'isAudio': True})
-            formats_list.append({'val': '3', 'label': 'رفع إجباري لـ 8K', 'sub': 'GPU Upscale', 'icon': '🚀'})
-            formats_list.append({'val': '4', 'label': '60 FPS مضاعفة', 'sub': 'FFmpeg MCI', 'icon': '⚡'})
+            # If format heights were not enumerated or single format, guarantee full standard list
+            if len(formats_list) <= 2:
+                formats_list = [
+                    {'val': '1', 'label': 'أعلى جودة تلقائياً', 'sub': 'Auto 8K / 4K MP4', 'icon': '🌟', 'badge': 'تلقائي'},
+                    {'val': '2', 'label': '8K Ultra HD', 'sub': '4320p MP4', 'icon': '💎', 'badge': '8K'},
+                    {'val': '5', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'},
+                    {'val': '6', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'},
+                    {'val': '7', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'},
+                    {'val': '8', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'},
+                    {'val': '9', 'label': '480p SD', 'sub': '480p MP4', 'icon': '📼', 'badge': '480p'},
+                    {'val': '11', 'label': '360p SD', 'sub': '360p MP4', 'icon': '💾', 'badge': '360p'}
+                ]
+
+            formats_list.append({'val': '10', 'label': 'صوت MP3 فقط', 'sub': '320kbps نقاء عالي', 'icon': '🎵', 'badge': 'MP3', 'isAudio': True})
+            formats_list.append({'val': '3', 'label': 'رفع إجباري لـ 8K', 'sub': 'GPU Upscale', 'icon': '🚀', 'badge': 'تسريع'})
+            formats_list.append({'val': '4', 'label': '60 FPS مضاعفة', 'sub': 'FFmpeg MCI', 'icon': '⚡', 'badge': 'سلاسة'})
 
             return jsonify({
                 'success': True,
