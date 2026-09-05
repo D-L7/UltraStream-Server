@@ -602,33 +602,43 @@ MOBILE_HTML = """
         }
 
         // Auto platform highlight & preview listener
-        const videoInput = document.getElementById('videoUrl');
-        ['input', 'change', 'paste', 'keyup', 'blur'].forEach(evt => {
-            videoInput.addEventListener(evt, function() {
-                const url = this.value.toLowerCase();
-                document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
-                
-                if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                    document.getElementById('pill-yt').classList.add('active');
-                } else if (url.includes('tiktok.com')) {
-                    document.getElementById('pill-tt').classList.add('active');
-                } else if (url.includes('instagram.com')) {
-                    document.getElementById('pill-ig').classList.add('active');
-                } else if (url.includes('twitter.com') || url.includes('x.com')) {
-                    document.getElementById('pill-tw').classList.add('active');
-                } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
-                    document.getElementById('pill-fb').classList.add('active');
-                }
-                fetchPreview();
-            });
+        function onUrlChanged() {
+            const input = document.getElementById('videoUrl');
+            if (!input) return;
+            const url = input.value.toLowerCase();
+
+            document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
+            
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                document.getElementById('pill-yt')?.classList.add('active');
+            } else if (url.includes('tiktok.com')) {
+                document.getElementById('pill-tt')?.classList.add('active');
+            } else if (url.includes('instagram.com')) {
+                document.getElementById('pill-ig')?.classList.add('active');
+            } else if (url.includes('twitter.com') || url.includes('x.com')) {
+                document.getElementById('pill-tw')?.classList.add('active');
+            } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
+                document.getElementById('pill-fb')?.classList.add('active');
+            }
+            fetchPreview();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('videoUrl');
+            if (input) {
+                ['input', 'change', 'paste', 'keyup', 'blur'].forEach(evt => {
+                    input.addEventListener(evt, onUrlChanged);
+                });
+            }
         });
 
         async function pasteClipboard() {
             try {
                 const text = await navigator.clipboard.readText();
-                if (text) {
-                    videoInput.value = text;
-                    videoInput.dispatchEvent(new Event('input'));
+                const input = document.getElementById('videoUrl');
+                if (text && input) {
+                    input.value = text;
+                    onUrlChanged();
                 }
             } catch (err) {
                 alert('يرجى لصق الرابط يدويًا داخل الخانة.');
@@ -638,9 +648,11 @@ MOBILE_HTML = """
         let previewTimer = null;
         function fetchPreview() {
             clearTimeout(previewTimer);
-            const url = videoInput.value.trim();
+            const input = document.getElementById('videoUrl');
             const box = document.getElementById('previewBox');
-            
+            if (!input || !box) return;
+
+            const url = input.value.trim();
             if (!url || url.length < 10) {
                 box.style.display = 'none';
                 return;
@@ -658,19 +670,23 @@ MOBILE_HTML = """
                         document.getElementById('previewTitle').innerText = data.title;
                         document.getElementById('previewMeta').innerText = '👤 الناشر: ' + (data.uploader || 'عام') + ' | ⏱️ المدة: ' + (data.duration || 'غير معروف');
                         if (data.thumbnail) {
-                            document.getElementById('previewThumb').src = data.thumbnail;
-                            document.getElementById('previewThumb').style.display = 'block';
+                            const thumbImg = document.getElementById('previewThumb');
+                            if (thumbImg) {
+                                thumbImg.src = data.thumbnail;
+                                thumbImg.style.display = 'block';
+                            }
                         }
                     } else {
                         document.getElementById('previewTitle').innerText = '🎬 فيديو جاهز للتحميل والتحويل';
-                        document.getElementById('previewMeta').innerText = 'اضغط على زر التحميل بالأسفل للبدء مباشرة';
+                        document.getElementById('previewMeta').innerText = 'اختر الجودة واضغط على زر التحميل بالأسفل';
                     }
                 } catch (e) {
                     document.getElementById('previewTitle').innerText = '🎬 فيديو جاهز للتحميل';
-                    document.getElementById('previewMeta').innerText = 'جاهز للتنزيل بنقرة واحدة';
+                    document.getElementById('previewMeta').innerText = 'اختر الجودة واضغط زر التحميل';
                 }
             }, 300);
         }
+
 
 
         async function startDownload() {
