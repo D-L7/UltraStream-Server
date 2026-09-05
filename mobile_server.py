@@ -577,10 +577,12 @@ MOBILE_HTML = """
             <div class="form-group">
                 <div class="step-title">1️⃣ أدخل رابط الفيديو المراد تحويله وتنزيله:</div>
                 <div class="input-wrapper">
-                    <input type="url" id="videoUrl" placeholder="https://..." required autocomplete="off" oninput="handleUrlInput()" onpaste="setTimeout(handleUrlInput, 50)" onchange="handleUrlInput()">
+                    <input type="text" id="videoUrl" placeholder="https://..." required autocomplete="off" oninput="handleUrlInput()" onpaste="setTimeout(handleUrlInput, 50)" onchange="handleUrlInput()">
+                    <button class="paste-btn" onclick="handleUrlInput()" style="left: 75px; background: linear-gradient(135deg, #00F0FF, #00A3FF); color: #000;">🔍 تحليل</button>
                     <button class="paste-btn" onclick="pasteClipboard()">📋 لصق</button>
                 </div>
             </div>
+
 
             <!-- Step 2 & 3: Live Video Preview & Quality Selection Cards -->
             <div id="previewBox" class="preview-box">
