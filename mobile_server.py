@@ -585,7 +585,8 @@ MOBILE_HTML = """
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('pwaBanner').style.display = 'flex';
+            const pwa = document.getElementById('pwaBanner');
+            if (pwa) pwa.style.display = 'flex';
         });
 
         async function installPWA() {
@@ -593,7 +594,8 @@ MOBILE_HTML = """
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    document.getElementById('pwaBanner').style.display = 'none';
+                    const pwa = document.getElementById('pwaBanner');
+                    if (pwa) pwa.style.display = 'none';
                 }
                 deferredPrompt = null;
             } else {
@@ -601,11 +603,29 @@ MOBILE_HTML = """
             }
         }
 
+        function normalizeUrl(rawUrl) {
+            if (!rawUrl) return '';
+            let url = rawUrl.trim();
+            if (url.startsWith('u.be/')) {
+                url = 'youtu.be/' + url.substring(5);
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            return url;
+        }
+
         // Auto platform highlight & preview listener
         function onUrlChanged() {
             const input = document.getElementById('videoUrl');
             if (!input) return;
-            const url = input.value.toLowerCase();
+            let rawVal = input.value;
+            if (!rawVal || !rawVal.trim()) {
+                document.getElementById('previewBox').style.display = 'none';
+                return;
+            }
+
+            const url = normalizeUrl(rawVal).toLowerCase();
 
             document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
             
@@ -652,7 +672,7 @@ MOBILE_HTML = """
             const box = document.getElementById('previewBox');
             if (!input || !box) return;
 
-            const url = input.value.trim();
+            let url = normalizeUrl(input.value);
             if (!url || url.length < 10) {
                 box.style.display = 'none';
                 return;
@@ -687,14 +707,16 @@ MOBILE_HTML = """
             }, 300);
         }
 
-
-
         async function startDownload() {
-            const url = document.getElementById('videoUrl').value.trim();
-            if (!url) {
+            const input = document.getElementById('videoUrl');
+            let rawUrl = input ? input.value : '';
+            if (!rawUrl || rawUrl.trim().length < 4) {
                 alert('يرجى إدخال رابط فيديو صحيح أولاً!');
                 return;
             }
+
+            let url = normalizeUrl(rawUrl);
+            if (input) input.value = url;
 
             const quality = document.getElementById('qualitySelect').value;
             const btn = document.getElementById('downloadBtn');
@@ -708,7 +730,7 @@ MOBILE_HTML = """
             btn.innerHTML = '<span>⚡ جاري المعالجة والتحميل...</span>';
             progressBox.style.display = 'flex';
             document.getElementById('progressBarFill').style.width = '35%';
-            resultContainer.style.display = 'none';
+            if (resultContainer) resultContainer.style.display = 'none';
 
             try {
                 const res = await fetch('/api/download', {
@@ -725,13 +747,12 @@ MOBILE_HTML = """
                     fileBtn.setAttribute('download', data.filename);
                     fileBtn.innerHTML = '🎉 اضغط هنا لتنزيل وحفظ الملف في جوالك ⬇️';
                     fileBtn.style.display = 'block';
-                    resultContainer.style.display = 'flex';
+                    if (resultContainer) resultContainer.style.display = 'flex';
 
-                    // Attach audio player if mp3
-                    if (data.filename.endsWith('.mp3')) {
+                    if (data.filename.endsWith('.mp3') && audioPlayer && audioWrapper) {
                         audioPlayer.src = data.file_url;
                         audioWrapper.style.display = 'block';
-                    } else {
+                    } else if (audioWrapper) {
                         audioWrapper.style.display = 'none';
                     }
                 } else {
@@ -746,8 +767,10 @@ MOBILE_HTML = """
         }
 
         async function shareExportFile() {
-            const fileUrl = document.getElementById('downloadFileBtn').href;
-            const fileName = document.getElementById('downloadFileBtn').getAttribute('download');
+            const fileBtn = document.getElementById('downloadFileBtn');
+            if (!fileBtn) return;
+            const fileUrl = fileBtn.href;
+            const fileName = fileBtn.getAttribute('download');
             
             if (navigator.share) {
                 try {
@@ -775,11 +798,22 @@ MOBILE_HTML = """
             }
         }
     </script>
+
 </body>
 </html>
 """
 
 
+
+def normalize_url(url):
+    if not url:
+        return ""
+    url = url.strip()
+    if url.startswith("u.be/"):
+        url = "youtu.be/" + url[5:]
+    if not (url.startswith("http://") or url.startswith("https://")):
+        url = "https://" + url
+    return url
 
 @app.route('/')
 def index():
@@ -787,7 +821,7 @@ def index():
 
 @app.route('/api/preview')
 def api_preview():
-    url = request.args.get('url', '').strip()
+    url = normalize_url(request.args.get('url', ''))
     if not url:
         return jsonify({'success': False, 'error': 'No URL provided'})
 
@@ -835,11 +869,12 @@ def api_preview():
 @app.route('/api/download', methods=['POST'])
 def api_download():
     data = request.get_json() or {}
-    url = data.get('url', '').strip()
+    url = normalize_url(data.get('url', ''))
     quality = data.get('quality', '1')
 
     if not url:
         return jsonify({'success': False, 'error': 'No URL provided'})
+
 
     try:
         platform_name = downloader.get_platform_folder(url)
