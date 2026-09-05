@@ -560,10 +560,22 @@ MOBILE_HTML = """
                 <div id="statusText" class="status-text">⏳ جاري الاتصال بالسيرفر ومعالجة الفيديو...</div>
             </div>
 
-            <!-- Final Direct Download Button -->
-            <a id="downloadFileBtn" class="download-link-btn" href="#" download>
-                🎉 اضغط هنا لتنزيل وتنسيق الملف مباشرة في جهازك
-            </a>
+            <!-- Final Action Result Box -->
+            <div id="resultContainer" style="display: none; flex-direction: column; gap: 12px; margin-top: 10px;">
+                <a id="downloadFileBtn" class="download-link-btn" href="#" download>
+                    🎉 اضغط لتنزيل وحفظ الملف في جوالك ⬇️
+                </a>
+
+                <button id="shareExportBtn" class="btn-action" style="background: linear-gradient(135deg, #7000FF 0%, #00F0FF 100%); display: flex;" onclick="shareExportFile()">
+                    <span>📤 تصدير ومشاركة إلى تطبيقات الجوال ومغل الموسيقى</span>
+                </button>
+
+                <!-- Embedded Player -->
+                <div id="audioPlayerWrapper" style="display:none; background: rgba(8, 10, 16, 0.95); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 16px; padding: 10px; margin-top: 5px;">
+                    <div style="font-size: 12px; color: var(--accent-cyan); font-weight: bold; margin-bottom: 6px; text-align: center;">🎵 استماع ومعاينة مباشرة فورية:</div>
+                    <audio id="mediaAudioPlayer" controls style="width: 100%; height: 40px; outline: none;"></audio>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -661,12 +673,15 @@ MOBILE_HTML = """
             const btn = document.getElementById('downloadBtn');
             const progressBox = document.getElementById('progressBox');
             const fileBtn = document.getElementById('downloadFileBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            const audioWrapper = document.getElementById('audioPlayerWrapper');
+            const audioPlayer = document.getElementById('mediaAudioPlayer');
 
             btn.disabled = true;
             btn.innerHTML = '<span>⚡ جاري المعالجة والتحميل...</span>';
             progressBox.style.display = 'flex';
             document.getElementById('progressBarFill').style.width = '35%';
-            fileBtn.style.display = 'none';
+            resultContainer.style.display = 'none';
 
             try {
                 const res = await fetch('/api/download', {
@@ -681,8 +696,17 @@ MOBILE_HTML = """
                     document.getElementById('statusText').innerText = '✅ اكتملت المعالجة بنجاح!';
                     fileBtn.href = data.file_url;
                     fileBtn.setAttribute('download', data.filename);
-                    fileBtn.innerHTML = '🎉 اضغط هنا لتنزيل الملف مباشرة في جهازك ⬇️';
+                    fileBtn.innerHTML = '🎉 اضغط هنا لتنزيل وحفظ الملف في جوالك ⬇️';
                     fileBtn.style.display = 'block';
+                    resultContainer.style.display = 'flex';
+
+                    // Attach audio player if mp3
+                    if (data.filename.endsWith('.mp3')) {
+                        audioPlayer.src = data.file_url;
+                        audioWrapper.style.display = 'block';
+                    } else {
+                        audioWrapper.style.display = 'none';
+                    }
                 } else {
                     document.getElementById('statusText').innerText = '❌ خطأ: ' + (data.error || 'فشل التحميل');
                 }
@@ -691,6 +715,36 @@ MOBILE_HTML = """
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<span>⬇️ بدء التحميل الفائق الآن</span>';
+            }
+        }
+
+        async function shareExportFile() {
+            const fileUrl = document.getElementById('downloadFileBtn').href;
+            const fileName = document.getElementById('downloadFileBtn').getAttribute('download');
+            
+            if (navigator.share) {
+                try {
+                    const response = await fetch(fileUrl);
+                    const blob = await response.blob();
+                    const file = new File([blob], fileName, { type: blob.type });
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: fileName,
+                            text: 'تصدير من ألترا ستريم 8K برو 🚀'
+                        });
+                    } else {
+                        await navigator.share({
+                            title: fileName,
+                            url: window.location.origin + fileUrl
+                        });
+                    }
+                } catch (e) {
+                    window.open(fileUrl, '_blank');
+                }
+            } else {
+                window.open(fileUrl, '_blank');
             }
         }
     </script>
