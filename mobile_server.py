@@ -6,7 +6,7 @@ import tempfile
 import threading
 import subprocess
 import mimetypes
-from urllib.parse import quote
+from datetime import datetime
 from flask import Flask, render_template_string, request, jsonify, send_file, make_response
 
 try:
@@ -679,6 +679,376 @@ MOBILE_HTML = """
             .btn-action { font-size: 15px; padding: 15px; }
             .qualities-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            width: 100%;
+            max-width: 620px;
+            background: rgba(15, 17, 28, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 6px;
+            gap: 6px;
+            margin-bottom: 5px;
+            backdrop-filter: blur(16px);
+        }
+
+        .nav-tab-btn {
+            flex: 1;
+            padding: 12px 10px;
+            background: transparent;
+            border: none;
+            border-radius: 14px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-tab-btn.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, rgba(157, 0, 255, 0.3) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: var(--text-main);
+            box-shadow: 0 4px 16px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Media Library Container */
+        .search-filter-box {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 16px;
+            backdrop-filter: blur(16px);
+        }
+
+        .library-search-input {
+            width: 100%;
+            background: rgba(5, 7, 12, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: #FFF;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .library-search-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+        }
+
+        .tag-filter-list {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .tag-filter-list::-webkit-scrollbar { display: none; }
+
+        .tag-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .tag-btn.active {
+            background: var(--accent-cyan);
+            color: #000;
+            border-color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+            width: 100%;
+        }
+
+        .media-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            backdrop-filter: blur(16px);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .media-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+
+        .media-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .media-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(157, 0, 255, 0.2) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .media-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .media-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #FFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+            flex-wrap: wrap;
+        }
+
+        .media-badge {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--accent-cyan);
+        }
+
+        .media-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .media-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 10px;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: opacity 0.2s ease;
+            text-decoration: none;
+        }
+
+        .media-btn-play {
+            background: linear-gradient(135deg, #00F0FF 0%, #7000FF 100%);
+            color: #FFF;
+        }
+        .media-btn-download {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        .media-btn-delete {
+            background: rgba(255, 0, 85, 0.15);
+            color: #FF0055;
+            border: 1px solid rgba(255, 0, 85, 0.3);
+            max-width: 38px;
+        }
+
+        /* Streaming Modal Player */
+        .player-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(3, 4, 8, 0.92);
+            backdrop-filter: blur(20px);
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .player-modal-card {
+            width: 100%;
+            max-width: 720px;
+            background: rgba(15, 17, 28, 0.95);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 240, 255, 0.25);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .player-modal-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .player-modal-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #FFF;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80%;
+        }
+
+        .close-modal-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #FFF;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-media-wrapper {
+            width: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+            max-height: 460px;
+        }
+
+        .player-media-wrapper video, .player-media-wrapper audio {
+            width: 100%;
+            max-height: 460px;
+            outline: none;
+        }
+
+        /* Features & Copyright Section */
+        .features-section {
+            width: 100%;
+            max-width: 620px;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            backdrop-filter: blur(16px);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+
+        .feature-heading {
+            font-size: 13px;
+            font-weight: 700;
+            color: #FFF;
+        }
+
+        .feature-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .copyright-footer {
+            width: 100%;
+            max-width: 620px;
+            text-align: center;
+            padding: 20px 10px 10px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .copyright-brand {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-main);
+            background: linear-gradient(135deg, #00F0FF 0%, #9D00FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body>
@@ -710,84 +1080,176 @@ MOBILE_HTML = """
             <span class="aria">🚀 16-Thread Engine</span>
         </div>
 
-        <!-- Form Card -->
-        <div class="card">
-            <!-- Step 1: Link Input -->
-            <div class="form-group">
-                <div class="step-title">
-                    <span class="step-number">1</span>
-                    <span>أدخل رابط الفيديو المراد تحويله وتنزيله:</span>
-                </div>
-                <div class="input-container">
-                    <div class="input-inner">
-                        <span class="input-link-icon">🔗</span>
-                        <input type="text" id="videoUrl" placeholder="ضع رابط الفيديو هنا (YouTube, TikTok...)" required autocomplete="off" oninput="handleUrlInput()" onpaste="setTimeout(handleUrlInput, 50)" onchange="handleUrlInput()">
-                        <button class="clear-btn" id="clearBtn" type="button" onclick="clearInput()" title="مسح الرابط">✖</button>
-                    </div>
-                    <div class="input-actions">
-                        <button class="action-btn paste-action" type="button" onclick="pasteClipboard()">
-                            <span>📋</span>
-                            <span>لصق</span>
-                        </button>
-                        <button class="action-btn analyze-action" type="button" onclick="handleUrlInput(true)">
-                            <span>🔍</span>
-                            <span>تحليل</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button id="downloaderTabBtn" class="nav-tab-btn active" onclick="switchTab('downloader')">
+                <span>⚡ التحميل المباشر</span>
+            </button>
+            <button id="libraryTabBtn" class="nav-tab-btn" onclick="switchTab('library')">
+                <span>📁 مكتبة المحتوى</span>
+            </button>
+        </div>
 
-
-            <!-- Step 2 & 3: Live Video Preview & Quality Selection Cards -->
-            <div id="previewBox" class="preview-box">
-                <div class="preview-header-row">
-                    <img id="previewThumb" class="preview-thumb" src="/logo.png" alt="Thumbnail">
-                    <div class="preview-info">
-                        <div id="previewTitle" class="preview-title">🔍 جاري جلب معلومات الجودة والفيديو...</div>
-                        <div id="previewMeta" class="preview-meta">⏱️ يرجى الانتظار لحظات...</div>
-                    </div>
-                </div>
-
-                <!-- Step 3: Interactive Quality Options Grid -->
-                <div class="qualities-section">
+        <!-- Downloader Tab Content -->
+        <div id="downloaderTab" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+            <!-- Form Card -->
+            <div class="card">
+                <!-- Step 1: Link Input -->
+                <div class="form-group">
                     <div class="step-title">
-                        <span class="step-number">2</span>
-                        <span>اختر الجودة المطلوبة للتحميل المباشر:</span>
+                        <span class="step-number">1</span>
+                        <span>أدخل رابط الفيديو المراد تحويله وتنزيله:</span>
                     </div>
-                    <div class="qualities-grid" id="qualitiesGrid">
-                        <!-- Quality Cards are generated dynamically -->
+                    <div class="input-container">
+                        <div class="input-inner">
+                            <span class="input-link-icon">🔗</span>
+                            <input type="text" id="videoUrl" placeholder="ضع رابط الفيديو هنا (YouTube, TikTok...)" required autocomplete="off" oninput="handleUrlInput()" onpaste="setTimeout(handleUrlInput, 50)" onchange="handleUrlInput()">
+                            <button class="clear-btn" id="clearBtn" type="button" onclick="clearInput()" title="مسح الرابط">✖</button>
+                        </div>
+                        <div class="input-actions">
+                            <button class="action-btn paste-action" type="button" onclick="pasteClipboard()">
+                                <span>📋</span>
+                                <span>لصق</span>
+                            </button>
+                            <button class="action-btn analyze-action" type="button" onclick="handleUrlInput(true)">
+                                <span>🔍</span>
+                                <span>تحليل</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Step 4: Instant Download Button -->
-                <button id="downloadBtn" class="btn-action" onclick="startDownload()" style="margin-top: 6px;">
-                    <span>⬇️ بدء التحميل الفائق المباشر</span>
-                </button>
+
+                <!-- Step 2 & 3: Live Video Preview & Quality Selection Cards -->
+                <div id="previewBox" class="preview-box">
+                    <div class="preview-header-row">
+                        <img id="previewThumb" class="preview-thumb" src="/logo.png" alt="Thumbnail">
+                        <div class="preview-info">
+                            <div id="previewTitle" class="preview-title">🔍 جاري جلب معلومات الجودة والفيديو...</div>
+                            <div id="previewMeta" class="preview-meta">⏱️ يرجى الانتظار لحظات...</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Interactive Quality Options Grid -->
+                    <div class="qualities-section">
+                        <div class="step-title">
+                            <span class="step-number">2</span>
+                            <span>اختر الجودة المطلوبة للتحميل المباشر:</span>
+                        </div>
+                        <div class="qualities-grid" id="qualitiesGrid">
+                            <!-- Quality Cards are generated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Instant Download Button -->
+                    <button id="downloadBtn" class="btn-action" onclick="startDownload()" style="margin-top: 6px;">
+                        <span>⬇️ بدء التحميل الفائق المباشر</span>
+                    </button>
+                </div>
+
+                <!-- Progress Bar Box -->
+                <div id="progressBox" class="progress-box">
+                    <div class="progress-bar-bg">
+                        <div id="progressBarFill" class="progress-bar-fill"></div>
+                    </div>
+                    <div id="statusText" class="status-text">⏳ جاري الاتصال بالسيرفر ومعالجة الفيديو...</div>
+                </div>
+
+                <!-- Final Action Result Box -->
+                <div id="resultContainer" style="display: none; flex-direction: column; gap: 12px; margin-top: 10px;">
+                    <a id="downloadFileBtn" class="download-link-btn" href="#" download>
+                        🎉 اضغط لتنزيل وحفظ الملف في جوالك ⬇️
+                    </a>
+
+                    <button id="shareExportBtn" class="btn-action" style="background: linear-gradient(135deg, #7000FF 0%, #00F0FF 100%); display: flex;" onclick="shareExportFile()">
+                        <span>📤 تصدير ومشاركة إلى تطبيقات الجوال ومغني الموسيقى</span>
+                    </button>
+
+                    <!-- Embedded Player -->
+                    <div id="audioPlayerWrapper" style="display:none; background: rgba(8, 10, 16, 0.95); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 16px; padding: 10px; margin-top: 5px;">
+                        <div style="font-size: 12px; color: var(--accent-cyan); font-weight: bold; margin-bottom: 6px; text-align: center;">🎵 استماع ومعاينة مباشرة فورية:</div>
+                        <audio id="mediaAudioPlayer" controls style="width: 100%; height: 40px; outline: none;"></audio>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Library Tab Content -->
+        <div id="libraryTab" style="display: none; width: 100%; max-width: 620px; flex-direction: column; gap: 14px;">
+            <div class="search-filter-box">
+                <input type="text" id="librarySearchInput" class="library-search-input" placeholder="🔍 ابحث في المحفوظات باسم الفيديو أو المقطع..." oninput="filterLibrary()">
+                <div class="tag-filter-list">
+                    <button class="tag-btn active" onclick="setLibraryTag('all', this)">الكل 🌐</button>
+                    <button class="tag-btn" onclick="setLibraryTag('video', this)">فيديو 🎬</button>
+                    <button class="tag-btn" onclick="setLibraryTag('audio', this)">صوت MP3 🎵</button>
+                    <button class="tag-btn" onclick="setLibraryTag('YouTube', this)">YouTube 🔴</button>
+                    <button class="tag-btn" onclick="setLibraryTag('TikTok', this)">TikTok 🎵</button>
+                    <button class="tag-btn" onclick="setLibraryTag('Instagram', this)">Instagram 📸</button>
+                    <button class="tag-btn" onclick="setLibraryTag('Twitter-X', this)">Twitter / X 🐦</button>
+                    <button class="tag-btn" onclick="setLibraryTag('Facebook', this)">Facebook 💙</button>
+                </div>
             </div>
 
-            <!-- Progress Bar Box -->
-            <div id="progressBox" class="progress-box">
-                <div class="progress-bar-bg">
-                    <div id="progressBarFill" class="progress-bar-fill"></div>
-                </div>
-                <div id="statusText" class="status-text">⏳ جاري الاتصال بالسيرفر ومعالجة الفيديو...</div>
+            <div id="libraryGrid" class="media-grid">
+                <!-- Dynamically loaded media cards -->
             </div>
+            
+            <div id="libraryEmpty" style="display: none; text-align: center; padding: 40px 20px; color: var(--text-muted); font-weight: 600;">
+                📁 لا توجد عناصر سابقة في المكتبة حتى الآن.
+            </div>
+        </div>
 
-            <!-- Final Action Result Box -->
-            <div id="resultContainer" style="display: none; flex-direction: column; gap: 12px; margin-top: 10px;">
-                <a id="downloadFileBtn" class="download-link-btn" href="#" download>
-                    🎉 اضغط لتنزيل وحفظ الملف في جوالك ⬇️
-                </a>
-
-                <button id="shareExportBtn" class="btn-action" style="background: linear-gradient(135deg, #7000FF 0%, #00F0FF 100%); display: flex;" onclick="shareExportFile()">
-                    <span>📤 تصدير ومشاركة إلى تطبيقات الجوال ومغني الموسيقى</span>
-                </button>
-
-                <!-- Embedded Player -->
-                <div id="audioPlayerWrapper" style="display:none; background: rgba(8, 10, 16, 0.95); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 16px; padding: 10px; margin-top: 5px;">
-                    <div style="font-size: 12px; color: var(--accent-cyan); font-weight: bold; margin-bottom: 6px; text-align: center;">🎵 استماع ومعاينة مباشرة فورية:</div>
-                    <audio id="mediaAudioPlayer" controls style="width: 100%; height: 40px; outline: none;"></audio>
+        <!-- Features Showcase Section -->
+        <div class="features-section">
+            <div class="section-title">
+                <span>🌟 مميزات محرك UltraStream 8K Pro</span>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <div class="feature-heading">تسريع Aria2 الفائق</div>
+                    <div class="feature-desc">تحميل متعدد الخيوط بـ 16 اتصال متزامن لأعلى سرعة استجابة.</div>
                 </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <div class="feature-heading">معالجة كرت الشاشة (GPU)</div>
+                    <div class="feature-desc">تسريع هاردوير عبر NVENC و AMF و QSV لتنقية ورفع الجودة.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💎</div>
+                    <div class="feature-heading">دقة فائقة تصل لـ 8K</div>
+                    <div class="feature-desc">دعم استخراج أعتى الجودات 8K/4K/1080p وصوتيات 320kbps.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-heading">دعم PWA وجميع الشاشات</div>
+                    <div class="feature-desc">تطبيق ويب تقدمي يعمل بسلاسة على الجوال والكمبيوتر والتابلت.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyright Footer -->
+        <div class="copyright-footer">
+            <div class="copyright-brand">UltraStream 8K Pro Engine v2.5</div>
+            <div>© 2026 جميع الحقوق محفوظة. تم تطوير النظام بقمة المعايير لسرعة واستقرار التحميل.</div>
+            <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px;">تطوير السيرفر والواجهة المتقدمة بنظام المعالجة الفورية المباشرة.</div>
+        </div>
+    </div>
+
+    <!-- In-App Stream Player Modal -->
+    <div id="playerModal" class="player-modal-overlay">
+        <div class="player-modal-card">
+            <div class="player-modal-header">
+                <div id="playerModalTitle" class="player-modal-title">مشغل المحتوى المدمج</div>
+                <button class="close-modal-btn" onclick="closeStreamPlayer()">✖</button>
+            </div>
+            <div class="player-media-wrapper">
+                <video id="playerVideo" controls style="display: none;"></video>
+                <audio id="playerAudio" controls style="display: none; width: 90%;"></audio>
+            </div>
+            <div style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; background: rgba(5, 7, 12, 0.8);">
+                <div id="playerModalMeta" style="font-size: 12px; color: var(--text-muted);">UltraStream Web Streamer</div>
+                <a id="playerDownloadBtn" class="media-btn media-btn-download" href="#" download style="padding: 8px 16px; border-radius: 12px;">⬇️ تحميل الملف</a>
             </div>
         </div>
     </div>
@@ -1053,6 +1515,191 @@ MOBILE_HTML = """
                 window.open(fileUrl, '_blank');
             }
         }
+
+        // Media Library & Navigation Logic
+        let cachedLibraryItems = [];
+        let activeTagFilter = 'all';
+
+        function switchTab(tabName) {
+            const downloaderTab = document.getElementById('downloaderTab');
+            const libraryTab = document.getElementById('libraryTab');
+            const downloaderBtn = document.getElementById('downloaderTabBtn');
+            const libraryBtn = document.getElementById('libraryTabBtn');
+
+            if (tabName === 'library') {
+                downloaderTab.style.display = 'none';
+                libraryTab.style.display = 'flex';
+                downloaderBtn.classList.remove('active');
+                libraryBtn.classList.add('active');
+                fetchLibraryItems();
+            } else {
+                libraryTab.style.display = 'none';
+                downloaderTab.style.display = 'flex';
+                libraryBtn.classList.remove('active');
+                downloaderBtn.classList.add('active');
+            }
+        }
+
+        async function fetchLibraryItems() {
+            const grid = document.getElementById('libraryGrid');
+            const emptyState = document.getElementById('libraryEmpty');
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--accent-cyan);">⏳ جاري تحميل المحفوظات...</div>';
+            emptyState.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/library');
+                const data = await res.json();
+                if (data.success) {
+                    cachedLibraryItems = data.items || [];
+                    renderLibraryGrid();
+                } else {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #FF0055;">❌ فشل جلب مكتبة المحتوى.</div>';
+                }
+            } catch (err) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #FF0055;">❌ حدث خطأ في الاتصال بالشبكة.</div>';
+            }
+        }
+
+        function setLibraryTag(tag, btnElem) {
+            activeTagFilter = tag;
+            document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElem) btnElem.classList.add('active');
+            renderLibraryGrid();
+        }
+
+        function filterLibrary() {
+            renderLibraryGrid();
+        }
+
+        function renderLibraryGrid() {
+            const grid = document.getElementById('libraryGrid');
+            const emptyState = document.getElementById('libraryEmpty');
+            const searchVal = (document.getElementById('librarySearchInput').value || '').toLowerCase().trim();
+
+            let items = cachedLibraryItems.filter(item => {
+                const matchesSearch = !searchVal || item.filename.toLowerCase().includes(searchVal) || item.platform.toLowerCase().includes(searchVal);
+                let matchesTag = true;
+
+                if (activeTagFilter === 'video') matchesTag = !item.is_audio;
+                else if (activeTagFilter === 'audio') matchesTag = item.is_audio;
+                else if (activeTagFilter !== 'all') matchesTag = item.platform.toLowerCase() === activeTagFilter.toLowerCase();
+
+                return matchesSearch && matchesTag;
+            });
+
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            grid.innerHTML = items.map(item => {
+                const icon = item.is_audio ? '🎵' : (item.ext === '.mkv' ? '🎥' : '🎬');
+                let platformBadge = '🌐عام';
+                if (item.platform.toLowerCase().includes('youtube')) platformBadge = '🔴 YouTube';
+                else if (item.platform.toLowerCase().includes('tiktok')) platformBadge = '🎵 TikTok';
+                else if (item.platform.toLowerCase().includes('instagram')) platformBadge = '📸 Instagram';
+                else if (item.platform.toLowerCase().includes('twitter')) platformBadge = '🐦 Twitter/X';
+                else if (item.platform.toLowerCase().includes('facebook')) platformBadge = '💙 Facebook';
+
+                return `
+                    <div class="media-card">
+                        <div class="media-card-header">
+                            <div class="media-icon">${icon}</div>
+                            <div class="media-info">
+                                <div class="media-title" title="${item.filename}">${item.filename}</div>
+                                <div class="media-meta">
+                                    <span class="media-badge">${platformBadge}</span>
+                                    <span>📦 ${item.size}</span>
+                                    <span>📅 ${item.date}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="media-actions">
+                            <button class="media-btn media-btn-play" onclick="openStreamPlayer('${item.stream_url}', '${encodeURIComponent(item.filename)}', '${platformBadge}', ${item.is_audio})">
+                                <span>▶️ تشغيل</span>
+                            </button>
+                            <a class="media-btn media-btn-download" href="${item.file_url}" download="${item.filename}">
+                                <span>⬇️ حفظ</span>
+                            </a>
+                            <button class="media-btn media-btn-delete" onclick="deleteLibraryItem('${encodeURIComponent(item.platform)}', '${encodeURIComponent(item.filename)}')" title="حذف الملف">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openStreamPlayer(streamUrl, filenameEnc, platformBadge, isAudio) {
+            const filename = decodeURIComponent(filenameEnc);
+            const modal = document.getElementById('playerModal');
+            const titleEl = document.getElementById('playerModalTitle');
+            const metaEl = document.getElementById('playerModalMeta');
+            const videoEl = document.getElementById('playerVideo');
+            const audioEl = document.getElementById('playerAudio');
+            const downloadBtn = document.getElementById('playerDownloadBtn');
+
+            titleEl.innerText = filename;
+            metaEl.innerText = `${platformBadge} | UltraStream Web Streamer`;
+            downloadBtn.href = streamUrl.replace('/stream_file/', '/download_file/');
+            downloadBtn.setAttribute('download', filename);
+
+            if (isAudio) {
+                videoEl.pause();
+                videoEl.style.display = 'none';
+                audioEl.src = streamUrl;
+                audioEl.style.display = 'block';
+                audioEl.play().catch(() => {});
+            } else {
+                audioEl.pause();
+                audioEl.style.display = 'none';
+                videoEl.src = streamUrl;
+                videoEl.style.display = 'block';
+                videoEl.play().catch(() => {});
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeStreamPlayer() {
+            const modal = document.getElementById('playerModal');
+            const videoEl = document.getElementById('playerVideo');
+            const audioEl = document.getElementById('playerAudio');
+
+            videoEl.pause();
+            videoEl.src = '';
+            audioEl.pause();
+            audioEl.src = '';
+            modal.style.display = 'none';
+        }
+
+        async function deleteLibraryItem(platformEnc, filenameEnc) {
+            const platform = decodeURIComponent(platformEnc);
+            const filename = decodeURIComponent(filenameEnc);
+
+            if (!confirm(`هل أنت تأكد من رغبتك في حذف الملف:\n"${filename}"؟`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/library/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ platform: platform, filename: filename })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    fetchLibraryItems();
+                } else {
+                    alert('فشل حذف الملف: ' + (data.error || 'خطأ غير معروف'));
+                }
+            } catch (err) {
+                alert('حدث خطأ أثناء الاتصال بالسيرفر لحذف الملف.');
+            }
+        }
     </script>
 </body>
 </html>
@@ -1262,6 +1909,102 @@ def download_file(platform, filename):
     response.headers["Content-Type"] = mime_type
     response.headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
     return response
+
+
+@app.route('/stream_file/<platform>/<filename>')
+def stream_file(platform, filename):
+    folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Downloads", platform)
+    filepath = os.path.join(folder, filename)
+
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'File not found'}), 404
+
+    ext = os.path.splitext(filename)[1].lower()
+    if ext == '.mp4':
+        mime_type = 'video/mp4'
+    elif ext == '.mp3':
+        mime_type = 'audio/mpeg'
+    elif ext == '.mkv':
+        mime_type = 'video/x-matroska'
+    elif ext == '.webm':
+        mime_type = 'video/webm'
+    else:
+        mime_type = mimetypes.guess_type(filepath)[0] or 'video/mp4'
+
+    response = send_file(
+        filepath,
+        mimetype=mime_type,
+        as_attachment=False
+    )
+    encoded_filename = quote(filename)
+    response.headers["Content-Type"] = mime_type
+    response.headers["Content-Disposition"] = f"inline; filename*=UTF-8''{encoded_filename}"
+    return response
+
+
+@app.route('/api/library', methods=['GET'])
+def api_library():
+    downloads_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Downloads")
+    items = []
+
+    if os.path.exists(downloads_root):
+        for root, dirs, files in os.walk(downloads_root):
+            for file in files:
+                if file.startswith('temp_'):
+                    continue
+                filepath = os.path.join(root, file)
+                rel_path = os.path.relpath(filepath, downloads_root)
+                parts = rel_path.split(os.sep)
+                
+                platform = parts[0] if len(parts) > 1 else 'General'
+                ext = os.path.splitext(file)[1].lower()
+                if ext not in ['.mp4', '.mp3', '.mkv', '.webm', '.m4a', '.flv', '.avi']:
+                    continue
+
+                stat = os.stat(filepath)
+                size_mb = f"{stat.st_size / (1024 * 1024):.1f} MB" if stat.st_size >= 1024*1024 else f"{stat.st_size / 1024:.0f} KB"
+                mod_time = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
+
+                is_audio = (ext == '.mp3' or ext == '.m4a')
+                
+                items.append({
+                    'filename': file,
+                    'platform': platform,
+                    'size': size_mb,
+                    'size_bytes': stat.st_size,
+                    'date': mod_time,
+                    'mtime': stat.st_mtime,
+                    'is_audio': is_audio,
+                    'ext': ext,
+                    'file_url': f"/download_file/{quote(platform)}/{quote(file)}",
+                    'stream_url': f"/stream_file/{quote(platform)}/{quote(file)}"
+                })
+
+    # Sort newest first
+    items.sort(key=lambda x: x['mtime'], reverse=True)
+    return jsonify({'success': True, 'items': items})
+
+
+@app.route('/api/library/delete', methods=['POST'])
+def api_library_delete():
+    data = request.get_json() or {}
+    platform = data.get('platform', '')
+    filename = data.get('filename', '')
+
+    if not platform or not filename:
+        return jsonify({'success': False, 'error': 'Invalid request parameters'})
+
+    downloads_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Downloads")
+    filepath = os.path.join(downloads_root, platform, filename)
+
+    if os.path.exists(filepath):
+        try:
+            os.remove(filepath)
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+    else:
+        return jsonify({'success': False, 'error': 'File not found'})
 
 
 @app.route('/logo.png')
