@@ -166,16 +166,14 @@ def get_format_option(choice):
     formats = {
         "1": ("Best Quality Available (Auto 8K / 4K MP4 with FFmpeg)", "bestvideo+bestaudio/best"),
         "2": ("8K Ultra HD Native (4320p MP4)", "bestvideo[height<=4320]+bestaudio/best[height<=4320]/best"),
-        "3": ("🚀 Forced Upscale Video to 8K MP4 (7680x4320 via HEVC NVENC / CPU)", "forced_8k_upscale"),
-        "4": ("⚡ Frame Interpolation to 60FPS MP4 (minterpolate mi_mode=mci via GPU/CPU)", "forced_60fps_interpolation"),
-        "5": ("4K Ultra HD (2160p MP4)", "bestvideo[height<=2160]+bestaudio/best[height<=2160]/best"),
-        "6": ("2K Quad HD (1440p MP4)", "bestvideo[height<=1440]+bestaudio/best[height<=1440]/best"),
-        "7": ("Full HD (1080p MP4)", "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best"),
-        "8": ("HD (720p MP4)", "bestvideo[height<=720]+bestaudio/best[height<=720]/best"),
-        "9": ("SD (480p MP4)", "bestvideo[height<=480]+bestaudio/best[height<=480]/best"),
-        "10": ("Audio Only MP3 (320kbps Highest Quality)", "bestaudio/best"),
-        "11": ("SD Low (360p MP4)", "bestvideo[height<=360]+bestaudio/best[height<=360]/best"),
-        "12": ("Manual Format Code Selection", "custom")
+        "3": ("4K Ultra HD (2160p MP4)", "bestvideo[height<=2160]+bestaudio/best[height<=2160]/best"),
+        "4": ("2K Quad HD (1440p MP4)", "bestvideo[height<=1440]+bestaudio/best[height<=1440]/best"),
+        "5": ("Full HD (1080p MP4)", "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best"),
+        "6": ("HD (720p MP4)", "bestvideo[height<=720]+bestaudio/best[height<=720]/best"),
+        "7": ("Audio Only MP3 (320kbps Highest Quality)", "bestaudio/best"),
+        "8": ("🚀 Forced Upscale Video to 8K MP4 (7680x4320 via HEVC NVENC / CPU)", "forced_8k_upscale"),
+        "9": ("⚡ Frame Interpolation to 60FPS MP4 (minterpolate mi_mode=mci via GPU/CPU)", "forced_60fps_interpolation"),
+        "10": ("Manual Format Code Selection", "custom")
     }
     return formats.get(choice, formats["1"])
 
@@ -365,9 +363,9 @@ def download_video(url, quality_choice, ffmpeg_bin_dir, ffmpeg_exe_path, aria2_p
     download_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Downloads", platform_name)
     os.makedirs(download_dir, exist_ok=True)
 
-    is_forced_8k = (quality_choice == "3")
-    is_60fps_interpolation = (quality_choice == "4")
-    is_audio_mp3 = (quality_choice == "10")
+    is_forced_8k = (quality_choice == "8")
+    is_60fps_interpolation = (quality_choice == "9")
+    is_audio_mp3 = (quality_choice in ["7", "10"])
     requires_post_processing = is_forced_8k or is_60fps_interpolation
     
     # Configure output template
@@ -436,7 +434,7 @@ def download_video(url, quality_choice, ffmpeg_bin_dir, ffmpeg_exe_path, aria2_p
         ]
 
 
-    elif quality_choice == "12":
+    elif quality_choice in ["10", "12"]:
         custom_format = list_available_formats(url, ydl_opts)
         ydl_opts['format'] = custom_format
         ydl_opts['merge_output_format'] = 'mp4'
@@ -591,15 +589,14 @@ def main():
         print("="*60)
         print(" [1] 🌟 Best Quality Available (Auto 8K / 4K MP4 with FFmpeg)")
         print(" [2] 🎬 8K Ultra HD Native (4320p MP4)")
-        print(f" [3] 🚀 Forced Upscale Video to 8K MP4 (7680x4320 via HEVC NVENC / CPU)")
-        print(f" [4] ⚡ Frame Interpolation to 60FPS MP4 (minterpolate mi_mode=mci via GPU/CPU)")
-        print(" [5] 🎬 4K Ultra HD (2160p MP4)")
-        print(" [6] 🎬 2K Quad HD (1440p MP4)")
-        print(" [7] 🎬 Full HD (1080p MP4)")
-        print(" [8] 🎬 HD (720p MP4)")
-        print(" [9] 🎬 SD (480p / 360p MP4)")
-        print(" [10] 🎵 Audio Only MP3 (320kbps Highest Quality)")
-        print(" [11] 📋 List All Available Formats (Manual Code)")
+        print(" [3] 🎬 4K Ultra HD (2160p MP4)")
+        print(" [4] 🎬 2K Quad HD (1440p MP4)")
+        print(" [5] 🎬 Full HD (1080p MP4)")
+        print(" [6] 🎬 HD (720p MP4)")
+        print(" [7] 🎵 Audio Only MP3 (320kbps Highest Quality)")
+        print(" [8] 🚀 Forced Upscale Video to 8K MP4 (7680x4320 via HEVC NVENC / CPU)")
+        print(" [9] ⚡ Frame Interpolation to 60FPS MP4 (minterpolate mi_mode=mci via GPU/CPU)")
+        print(" [10] 📋 List All Available Formats (Manual Code)")
         print("="*60)
 
         choice = input(f"{Colors.YELLOW}Enter choice number [Default 1]: {Colors.ENDC}").strip()

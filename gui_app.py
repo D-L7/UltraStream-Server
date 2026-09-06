@@ -50,14 +50,13 @@ TRANSLATIONS = {
         'qualities': [
             "1. 🌟 أعلى جودة فائقة تلقائياً (تصل إلى 8K/4K MP4)",
             "2. 🎬 8K Ultra HD الأصلي (4320p MP4)",
-            "3. 🚀 رفع إجباري إلى 8K (7680x4320 عبر HEVC NVENC / CPU)",
-            "4. ⚡ مضاعفة الإطارات إلى 60FPS (عبر FFmpeg MCI)",
-            "5. 🎬 4K Ultra HD (2160p MP4)",
-            "6. 🎬 2K Quad HD (1440p MP4)",
-            "7. 🎬 Full HD (1080p MP4)",
-            "8. 🎬 HD (720p MP4)",
-            "9. 🎬 SD (480p / 360p MP4)",
-            "10. 🎵 صوت فقط MP3 (أعلى جودة صوتية 320kbps)",
+            "3. 🎬 4K Ultra HD (2160p MP4)",
+            "4. 🎬 2K Quad HD (1440p MP4)",
+            "5. 🎬 Full HD (1080p MP4)",
+            "6. 🎬 HD (720p MP4)",
+            "7. 🎵 صوت فقط MP3 (أعلى جودة صوتية 320kbps)",
+            "8. 🚀 رفع إجباري إلى 8K (7680x4320 عبر HEVC NVENC / CPU)",
+            "9. ⚡ مضاعفة الإطارات إلى 60FPS (عبر FFmpeg MCI)",
         ]
     },
     'en': {
@@ -90,14 +89,13 @@ TRANSLATIONS = {
         'qualities': [
             "1. 🌟 Best Quality Available (Auto 8K / 4K MP4)",
             "2. 🎬 8K Ultra HD Native (4320p MP4)",
-            "3. 🚀 Forced Upscale Video to 8K (7680x4320 via HEVC NVENC / CPU)",
-            "4. ⚡ Frame Interpolation to 60FPS (via FFmpeg MCI)",
-            "5. 🎬 4K Ultra HD (2160p MP4)",
-            "6. 🎬 2K Quad HD (1440p MP4)",
-            "7. 🎬 Full HD (1080p MP4)",
-            "8. 🎬 HD (720p MP4)",
-            "9. 🎬 SD (480p / 360p MP4)",
-            "10. 🎵 Audio Only MP3 (Highest Quality 320kbps)",
+            "3. 🎬 4K Ultra HD (2160p MP4)",
+            "4. 🎬 2K Quad HD (1440p MP4)",
+            "5. 🎬 Full HD (1080p MP4)",
+            "6. 🎬 HD (720p MP4)",
+            "7. 🎵 Audio Only MP3 (Highest Quality 320kbps)",
+            "8. 🚀 Forced Upscale Video to 8K (7680x4320 via GPU/CPU)",
+            "9. ⚡ Frame Interpolation to 60FPS (via FFmpeg MCI)",
         ]
     }
 }

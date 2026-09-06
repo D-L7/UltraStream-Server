@@ -797,15 +797,13 @@ MOBILE_HTML = """
         const DEFAULT_QUALITIES = [
             { val: '1', label: 'أعلى جودة تلقائياً', sub: 'Auto 8K / 4K MP4', icon: '🌟', badge: 'تلقائي', default: true },
             { val: '2', label: '8K Ultra HD', sub: '4320p MP4', icon: '💎', badge: '8K' },
-            { val: '5', label: '4K Ultra HD', sub: '2160p MP4', icon: '🎬', badge: '4K' },
-            { val: '6', label: '2K Quad HD', sub: '1440p MP4', icon: '🎥', badge: '2K' },
-            { val: '7', label: '1080p Full HD', sub: '1080p MP4', icon: '📺', badge: '1080p' },
-            { val: '8', label: '720p HD', sub: '720p MP4', icon: '📱', badge: '720p' },
-            { val: '9', label: '480p SD', sub: '480p MP4', icon: '📼', badge: '480p' },
-            { val: '11', label: '360p SD', sub: '360p MP4', icon: '💾', badge: '360p' },
-            { val: '10', label: 'صوت MP3 فقط', sub: '320kbps نقاء عالي', icon: '🎵', badge: 'MP3', isAudio: true },
-            { val: '3', label: 'رفع إجباري لـ 8K', sub: 'GPU Upscale', icon: '🚀', badge: 'تسريع' },
-            { val: '4', label: '60 FPS مضاعفة', sub: 'FFmpeg MCI', icon: '⚡', badge: 'سلاسة' }
+            { val: '3', label: '4K Ultra HD', sub: '2160p MP4', icon: '🎬', badge: '4K' },
+            { val: '4', label: '2K Quad HD', sub: '1440p MP4', icon: '🎥', badge: '2K' },
+            { val: '5', label: '1080p Full HD', sub: '1080p MP4', icon: '📺', badge: '1080p' },
+            { val: '6', label: '720p HD', sub: '720p MP4', icon: '📱', badge: '720p' },
+            { val: '7', label: 'صوت MP3 فقط', sub: '320kbps نقاء عالي', icon: '🎵', badge: 'MP3', isAudio: true },
+            { val: '8', label: 'رفع إجباري لـ 8K', sub: 'GPU Upscale', icon: '🚀', badge: 'تسريع' },
+            { val: '9', label: '60 FPS مضاعفة', sub: 'FFmpeg MCI', icon: '⚡', badge: 'سلاسة' }
         ];
 
         let selectedQualityVal = '1';
@@ -830,7 +828,9 @@ MOBILE_HTML = """
                 }
                 deferredPrompt = null;
             } else {
-                alert('لتثبيت التطبيق على الجوال:\\n- في الآيفون (Safari): اضغط زر المشاركة 📤 ثم اختر "إضافة إلى الشاشة الرئيسية ➕".\\n- في الأندرويد (Chrome): اضغط على القائمة 💬 ثم اختر "تثبيت التطبيق".');
+                alert(`لتثبيت التطبيق على الجوال:
+- في الآيفون (Safari): اضغط زر المشاركة 📤 ثم اختر "إضافة إلى الشاشة الرئيسية ➕".
+- في الأندرويد (Chrome): اضغط على القائمة 💬 ثم اختر "تثبيت التطبيق".`);
             }
         }
 
@@ -1143,38 +1143,32 @@ def api_preview():
                     if h and isinstance(h, int) and h >= 144:
                         heights_seen.add(h)
 
-            # Map detected resolutions to clean user choices with icons & badges
+            # Map detected resolutions to clean high-quality choices (720p and above)
             if 4320 in heights_seen or any(h >= 3000 for h in heights_seen):
                 formats_list.append({'val': '2', 'label': '8K Ultra HD', 'sub': '4320p MP4', 'icon': '💎', 'badge': '8K'})
             if any(2000 <= h < 3000 for h in heights_seen) or 2160 in heights_seen:
-                formats_list.append({'val': '5', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'})
+                formats_list.append({'val': '3', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'})
             if any(1300 <= h < 2000 for h in heights_seen) or 1440 in heights_seen:
-                formats_list.append({'val': '6', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'})
+                formats_list.append({'val': '4', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'})
             if any(900 <= h < 1300 for h in heights_seen) or 1080 in heights_seen:
-                formats_list.append({'val': '7', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'})
+                formats_list.append({'val': '5', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'})
             if any(600 <= h < 900 for h in heights_seen) or 720 in heights_seen:
-                formats_list.append({'val': '8', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'})
-            if any(400 <= h < 600 for h in heights_seen) or 480 in heights_seen:
-                formats_list.append({'val': '9', 'label': '480p SD', 'sub': '480p MP4', 'icon': '📼', 'badge': '480p'})
-            if any(144 <= h < 400 for h in heights_seen) or 360 in heights_seen:
-                formats_list.append({'val': '11', 'label': '360p SD', 'sub': '360p MP4', 'icon': '💾', 'badge': '360p'})
+                formats_list.append({'val': '6', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'})
 
-            # If format heights were not enumerated or single format, guarantee full standard list
-            if len(formats_list) <= 2:
+            # Fallback standard list if format heights were not enumerated
+            if len(formats_list) <= 1:
                 formats_list = [
                     {'val': '1', 'label': 'أعلى جودة تلقائياً', 'sub': 'Auto 8K / 4K MP4', 'icon': '🌟', 'badge': 'تلقائي'},
                     {'val': '2', 'label': '8K Ultra HD', 'sub': '4320p MP4', 'icon': '💎', 'badge': '8K'},
-                    {'val': '5', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'},
-                    {'val': '6', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'},
-                    {'val': '7', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'},
-                    {'val': '8', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'},
-                    {'val': '9', 'label': '480p SD', 'sub': '480p MP4', 'icon': '📼', 'badge': '480p'},
-                    {'val': '11', 'label': '360p SD', 'sub': '360p MP4', 'icon': '💾', 'badge': '360p'}
+                    {'val': '3', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'},
+                    {'val': '4', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'},
+                    {'val': '5', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'},
+                    {'val': '6', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'}
                 ]
 
-            formats_list.append({'val': '10', 'label': 'صوت MP3 فقط', 'sub': '320kbps نقاء عالي', 'icon': '🎵', 'badge': 'MP3', 'isAudio': True})
-            formats_list.append({'val': '3', 'label': 'رفع إجباري لـ 8K', 'sub': 'GPU Upscale', 'icon': '🚀', 'badge': 'تسريع'})
-            formats_list.append({'val': '4', 'label': '60 FPS مضاعفة', 'sub': 'FFmpeg MCI', 'icon': '⚡', 'badge': 'سلاسة'})
+            formats_list.append({'val': '7', 'label': 'صوت MP3 فقط', 'sub': '320kbps نقاء عالي', 'icon': '🎵', 'badge': 'MP3', 'isAudio': True})
+            formats_list.append({'val': '8', 'label': 'رفع إجباري لـ 8K', 'sub': 'GPU Upscale', 'icon': '🚀', 'badge': 'تسريع'})
+            formats_list.append({'val': '9', 'label': '60 FPS مضاعفة', 'sub': 'FFmpeg MCI', 'icon': '⚡', 'badge': 'سلاسة'})
 
             return jsonify({
                 'success': True,
