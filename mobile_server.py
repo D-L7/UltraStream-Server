@@ -8,6 +8,7 @@ import subprocess
 import mimetypes
 from datetime import datetime
 from flask import Flask, render_template_string, request, jsonify, send_file, make_response
+from urllib.parse import quote, unquote
 
 try:
     import qrcode
@@ -1255,19 +1256,13 @@ MOBILE_HTML = """
     </div>
 
     <script>
-        // Default Quality Presets
+        // Default Quality Presets (Highest Video Quality & Audio Only MP3)
         const DEFAULT_QUALITIES = [
-            { val: '1', label: 'أعلى جودة تلقائياً', sub: 'Auto 8K / 4K MP4', icon: '🌟', badge: 'تلقائي', default: true },
-            { val: '2', label: '8K Ultra HD', sub: '4320p MP4', icon: '💎', badge: '8K' },
-            { val: '3', label: '4K Ultra HD', sub: '2160p MP4', icon: '🎬', badge: '4K' },
-            { val: '4', label: '2K Quad HD', sub: '1440p MP4', icon: '🎥', badge: '2K' },
-            { val: '5', label: '1080p Full HD', sub: '1080p MP4', icon: '📺', badge: '1080p' },
-            { val: '6', label: '720p HD', sub: '720p MP4', icon: '📱', badge: '720p' },
-            { val: '7', label: 'صوت MP3 فقط', sub: '320kbps نقاء عالي', icon: '🎵', badge: 'MP3', isAudio: true },
-            { val: '8', label: 'رفع إجباري لـ 8K', sub: 'GPU Upscale', icon: '🚀', badge: 'تسريع' },
-            { val: '9', label: '60 FPS مضاعفة', sub: 'FFmpeg MCI', icon: '⚡', badge: 'سلاسة' }
+            { val: '1', label: 'أعلى جودة فيديو (MP4)', sub: 'أفضل دقة وجودة فائقة تلقائياً', icon: '🌟', badge: 'فيديو MP4', default: true },
+            { val: '7', label: 'صوت MP3 فقط', sub: '320kbps أعلى نقاء صوتي', icon: '🎵', badge: 'صوت MP3', isAudio: true }
         ];
 
+        let activeFormatsList = DEFAULT_QUALITIES;
         let selectedQualityVal = '1';
         let currentFetchedUrl = '';
 
@@ -1345,9 +1340,11 @@ MOBILE_HTML = """
             if (!grid) return;
             grid.innerHTML = '';
 
-            const listToUse = (customList && customList.length > 0) ? customList : DEFAULT_QUALITIES;
+            if (customList && customList.length > 0) {
+                activeFormatsList = customList;
+            }
 
-            listToUse.forEach(q => {
+            activeFormatsList.forEach(q => {
                 const card = document.createElement('div');
                 card.className = 'quality-card' + (q.isAudio ? ' audio' : '') + (q.val === selectedQualityVal ? ' selected' : '');
                 card.onclick = () => selectQualityCard(q.val);
@@ -1364,7 +1361,6 @@ MOBILE_HTML = """
 
         function selectQualityCard(val) {
             selectedQualityVal = val;
-            document.querySelectorAll('.quality-card').forEach(c => c.classList.remove('selected'));
             renderQualityCards();
         }
 
@@ -1778,44 +1774,10 @@ def api_preview():
             if not thumbnail_url and 'thumbnails' in info and info['thumbnails']:
                 thumbnail_url = info['thumbnails'][-1].get('url', '')
 
-            # Build dynamic formats list from video info
             formats_list = [
-                {'val': '1', 'label': 'أعلى جودة تلقائياً', 'sub': 'Auto 8K / 4K MP4', 'icon': '🌟', 'badge': 'تلقائي'}
+                {'val': '1', 'label': 'أعلى جودة فيديو (MP4)', 'sub': 'أفضل دقة وجودة فائقة تلقائياً', 'icon': '🌟', 'badge': 'فيديو MP4', 'default': True},
+                {'val': '7', 'label': 'صوت MP3 فقط', sub: '320kbps أعلى نقاء صوتي', 'icon': '🎵', 'badge': 'صوت MP3', 'isAudio': True}
             ]
-            
-            heights_seen = set()
-            if 'formats' in info and info['formats']:
-                for fmt in info['formats']:
-                    h = fmt.get('height')
-                    if h and isinstance(h, int) and h >= 144:
-                        heights_seen.add(h)
-
-            # Map detected resolutions to clean high-quality choices (720p and above)
-            if 4320 in heights_seen or any(h >= 3000 for h in heights_seen):
-                formats_list.append({'val': '2', 'label': '8K Ultra HD', 'sub': '4320p MP4', 'icon': '💎', 'badge': '8K'})
-            if any(2000 <= h < 3000 for h in heights_seen) or 2160 in heights_seen:
-                formats_list.append({'val': '3', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'})
-            if any(1300 <= h < 2000 for h in heights_seen) or 1440 in heights_seen:
-                formats_list.append({'val': '4', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'})
-            if any(900 <= h < 1300 for h in heights_seen) or 1080 in heights_seen:
-                formats_list.append({'val': '5', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'})
-            if any(600 <= h < 900 for h in heights_seen) or 720 in heights_seen:
-                formats_list.append({'val': '6', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'})
-
-            # Fallback standard list if format heights were not enumerated
-            if len(formats_list) <= 1:
-                formats_list = [
-                    {'val': '1', 'label': 'أعلى جودة تلقائياً', 'sub': 'Auto 8K / 4K MP4', 'icon': '🌟', 'badge': 'تلقائي'},
-                    {'val': '2', 'label': '8K Ultra HD', 'sub': '4320p MP4', 'icon': '💎', 'badge': '8K'},
-                    {'val': '3', 'label': '4K Ultra HD', 'sub': '2160p MP4', 'icon': '🎬', 'badge': '4K'},
-                    {'val': '4', 'label': '2K Quad HD', 'sub': '1440p MP4', 'icon': '🎥', 'badge': '2K'},
-                    {'val': '5', 'label': '1080p Full HD', 'sub': '1080p MP4', 'icon': '📺', 'badge': '1080p'},
-                    {'val': '6', 'label': '720p HD', 'sub': '720p MP4', 'icon': '📱', 'badge': '720p'}
-                ]
-
-            formats_list.append({'val': '7', 'label': 'صوت MP3 فقط', 'sub': '320kbps نقاء عالي', 'icon': '🎵', 'badge': 'MP3', 'isAudio': True})
-            formats_list.append({'val': '8', 'label': 'رفع إجباري لـ 8K', 'sub': 'GPU Upscale', 'icon': '🚀', 'badge': 'تسريع'})
-            formats_list.append({'val': '9', 'label': '60 FPS مضاعفة', 'sub': 'FFmpeg MCI', 'icon': '⚡', 'badge': 'سلاسة'})
 
             return jsonify({
                 'success': True,
@@ -1868,7 +1830,7 @@ def api_download():
         latest_file = max(files, key=os.path.getmtime)
         filename = os.path.basename(latest_file)
 
-        file_url = f"/download_file/{platform_name}/{filename}"
+        file_url = f"/download_file/{quote(platform_name)}/{quote(filename)}"
         return jsonify({
             'success': True,
             'filename': filename,
@@ -1877,8 +1839,10 @@ def api_download():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/download_file/<platform>/<filename>')
+@app.route('/download_file/<platform>/<path:filename>')
 def download_file(platform, filename):
+    platform = unquote(platform)
+    filename = unquote(filename)
     folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Downloads", platform)
     filepath = os.path.join(folder, filename)
 
@@ -1911,8 +1875,10 @@ def download_file(platform, filename):
     return response
 
 
-@app.route('/stream_file/<platform>/<filename>')
+@app.route('/stream_file/<platform>/<path:filename>')
 def stream_file(platform, filename):
+    platform = unquote(platform)
+    filename = unquote(filename)
     folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Downloads", platform)
     filepath = os.path.join(folder, filename)
 
@@ -1988,8 +1954,8 @@ def api_library():
 @app.route('/api/library/delete', methods=['POST'])
 def api_library_delete():
     data = request.get_json() or {}
-    platform = data.get('platform', '')
-    filename = data.get('filename', '')
+    platform = unquote(data.get('platform', ''))
+    filename = unquote(data.get('filename', ''))
 
     if not platform or not filename:
         return jsonify({'success': False, 'error': 'Invalid request parameters'})

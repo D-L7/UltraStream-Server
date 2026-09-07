@@ -48,15 +48,8 @@ TRANSLATIONS = {
         'notif_title': "🚀 UltraStream 8K Pro | ألترا ستريم 8K برو",
         'notif_completed': "✅ اكتمل تحميل الفيديو بنجاح وحُفظ في مجلد Downloads!",
         'qualities': [
-            "1. 🌟 أعلى جودة فائقة تلقائياً (تصل إلى 8K/4K MP4)",
-            "2. 🎬 8K Ultra HD الأصلي (4320p MP4)",
-            "3. 🎬 4K Ultra HD (2160p MP4)",
-            "4. 🎬 2K Quad HD (1440p MP4)",
-            "5. 🎬 Full HD (1080p MP4)",
-            "6. 🎬 HD (720p MP4)",
-            "7. 🎵 صوت فقط MP3 (أعلى جودة صوتية 320kbps)",
-            "8. 🚀 رفع إجباري إلى 8K (7680x4320 عبر HEVC NVENC / CPU)",
-            "9. ⚡ مضاعفة الإطارات إلى 60FPS (عبر FFmpeg MCI)",
+            "1. 🌟 أعلى جودة فيديو (MP4)",
+            "2. 🎵 صوت فقط MP3 (أعلى جودة 320kbps)",
         ]
     },
     'en': {
@@ -71,7 +64,7 @@ TRANSLATIONS = {
         'url_placeholder': "Paste your video link here...",
         'paste': "📋 Paste",
         'clear': "❌ Clear",
-        'quality_label': "Select Quality & Processing Mode:",
+        'quality_label': "Select Quality & Format:",
         'start_download': "⬇️ START DOWNLOAD NOW",
         'downloading': "⏳ DOWNLOADING...",
         'ready': "Ready for download.",
@@ -87,15 +80,8 @@ TRANSLATIONS = {
         'notif_title': "🚀 UltraStream 8K Pro",
         'notif_completed': "✅ Download completed! File saved in Downloads folder.",
         'qualities': [
-            "1. 🌟 Best Quality Available (Auto 8K / 4K MP4)",
-            "2. 🎬 8K Ultra HD Native (4320p MP4)",
-            "3. 🎬 4K Ultra HD (2160p MP4)",
-            "4. 🎬 2K Quad HD (1440p MP4)",
-            "5. 🎬 Full HD (1080p MP4)",
-            "6. 🎬 HD (720p MP4)",
-            "7. 🎵 Audio Only MP3 (Highest Quality 320kbps)",
-            "8. 🚀 Forced Upscale Video to 8K (7680x4320 via GPU/CPU)",
-            "9. ⚡ Frame Interpolation to 60FPS (via FFmpeg MCI)",
+            "1. 🌟 Highest Video Quality (MP4)",
+            "2. 🎵 Audio Only MP3 (320kbps)",
         ]
     }
 }
@@ -460,7 +446,7 @@ class App(ctk.CTk):
             return
 
         selected_quality_text = self.quality_dropdown.get()
-        quality_choice = selected_quality_text.split(".")[0].strip()
+        quality_choice = "7" if ("2." in selected_quality_text or "MP3" in selected_quality_text) else "1"
 
         self.btn_download.configure(state="disabled", text=t['downloading'])
         self.progress_bar.set(0.05)
