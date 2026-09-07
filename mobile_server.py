@@ -430,41 +430,90 @@ MOBILE_HTML = """
             display: flex;
             gap: 14px;
             align-items: center;
+            background: rgba(15, 20, 32, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .preview-thumb-wrap {
+            position: relative;
+            width: 125px;
+            height: 75px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .preview-thumb {
-            width: 110px;
-            height: 72px;
-            border-radius: 12px;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .preview-thumb-wrap:hover .preview-thumb {
+            transform: scale(1.06);
+        }
+
+        .preview-platform-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.85);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 6px;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
         }
 
         .preview-info {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
             overflow: hidden;
         }
 
         .preview-title {
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 800;
             color: #FFFFFF;
-            line-height: 1.3;
+            line-height: 1.35;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
 
         .preview-meta {
             font-size: 11.5px;
             color: var(--accent-cyan);
             font-weight: 600;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .preview-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 240, 255, 0.08);
+            padding: 3px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.15);
         }
 
         /* Dynamic Quality Cards Section */
@@ -1124,10 +1173,15 @@ MOBILE_HTML = """
                 <!-- Step 2 & 3: Live Video Preview & Quality Selection Cards -->
                 <div id="previewBox" class="preview-box">
                     <div class="preview-header-row">
-                        <img id="previewThumb" class="preview-thumb" src="/logo.png" alt="Thumbnail">
+                        <div class="preview-thumb-wrap">
+                            <img id="previewThumb" class="preview-thumb" src="/logo.png" alt="Thumbnail">
+                            <span id="previewPlatformBadge" class="preview-platform-badge">🌐 منصة عامة</span>
+                        </div>
                         <div class="preview-info">
-                            <div id="previewTitle" class="preview-title">🔍 جاري جلب معلومات الجودة والفيديو...</div>
-                            <div id="previewMeta" class="preview-meta">⏱️ يرجى الانتظار لحظات...</div>
+                            <div id="previewTitle" class="preview-title">🔍 جاري جلب وتأكيد معلومات الفيديو والصورة المصغرة...</div>
+                            <div id="previewMeta" class="preview-meta">
+                                <span class="preview-meta-item">⏱️ يرجى الانتظار لحظات...</span>
+                            </div>
                         </div>
                     </div>
 
@@ -1388,10 +1442,12 @@ MOBILE_HTML = """
             else if (url.includes('facebook.com') || url.includes('fb.watch')) document.getElementById('pill-fb')?.classList.add('active');
 
             box.style.display = 'flex';
-            document.getElementById('previewTitle').innerText = '🔍 جاري تحليل معلومات الفيديو والجودات...';
-            document.getElementById('previewMeta').innerText = 'يرجى الانتظار لحظات...';
-            renderQualityCards();
+            document.getElementById('previewTitle').innerText = '🔍 جاري تحليل وتأكيد معلومات الفيديو والصورة المصغرة...';
+            document.getElementById('previewMeta').innerHTML = '<span class="preview-meta-item">⏱️ يرجى الانتظار لحظات...</span>';
+            const badgeEl = document.getElementById('previewPlatformBadge');
+            if (badgeEl) badgeEl.innerText = '🔍 جاري التحليل';
 
+            renderQualityCards();
             currentFetchedUrl = url;
 
             try {
@@ -1399,11 +1455,18 @@ MOBILE_HTML = """
                 const data = await res.json();
                 if (data.success && data.title) {
                     document.getElementById('previewTitle').innerText = data.title;
-                    document.getElementById('previewMeta').innerText = '👤 الناشر: ' + (data.uploader || 'عام') + ' | ⏱️ المدة: ' + (data.duration || 'غير معروف');
+                    document.getElementById('previewMeta').innerHTML = `
+                        <span class="preview-meta-item">👤 <strong>${data.uploader || 'عام'}</strong></span>
+                        <span class="preview-meta-item">⏱️ <strong>${data.duration || 'جاهز'}</strong></span>
+                    `;
+                    if (badgeEl) {
+                        badgeEl.innerText = data.platform || '🌐 منصة عامة';
+                    }
                     if (data.thumbnail) {
                         const thumbImg = document.getElementById('previewThumb');
                         if (thumbImg) {
                             thumbImg.src = data.thumbnail;
+                            thumbImg.onerror = () => { thumbImg.src = '/logo.png'; };
                             thumbImg.style.display = 'block';
                         }
                     }
@@ -1412,11 +1475,11 @@ MOBILE_HTML = """
                     }
                 } else {
                     document.getElementById('previewTitle').innerText = '🎬 فيديو جاهز للتحميل والتحويل';
-                    document.getElementById('previewMeta').innerText = 'اختر الجودة من الكروت بالأسفل ثم اضغط زر التحميل';
+                    document.getElementById('previewMeta').innerHTML = '<span class="preview-meta-item">اختر الجودة من الكروت بالأسفل ثم اضغط زر التحميل</span>';
                 }
             } catch (e) {
                 document.getElementById('previewTitle').innerText = '🎬 فيديو جاهز للتحميل';
-                document.getElementById('previewMeta').innerText = 'اختر الجودة بالأسفل واضغط زر التحميل';
+                document.getElementById('previewMeta').innerHTML = '<span class="preview-meta-item">اختر الجودة بالأسفل واضغط زر التحميل</span>';
             }
         }
 
@@ -1731,12 +1794,60 @@ def index():
     return resp
 
 
-@app.route('/api/preview')
-def api_preview():
-    url = normalize_url(request.args.get('url', ''))
-    if not url:
-        return jsonify({'success': False, 'error': 'No URL provided'})
+def get_real_video_metadata(url):
+    """Multi-tiered real video metadata fetcher (oEmbed APIs + yt_dlp + OpenGraph HTML fallback)"""
+    platform_key = downloader.get_platform_folder(url) if downloader else "General"
+    platform_badges = {
+        'YouTube': '🔴 YouTube',
+        'TikTok': '🎵 TikTok',
+        'Instagram': '📸 Instagram',
+        'Twitter': '🐦 Twitter / X',
+        'Facebook': '💙 Facebook',
+        'Twitch': '💜 Twitch',
+        'Other': '🌐 منصة عامة'
+    }
+    platform_badge = platform_badges.get(platform_key, '🌐 منصة عامة')
 
+    title = ""
+    uploader = ""
+    thumbnail_url = ""
+    duration_str = ""
+
+    # Strategy 1: Fast oEmbed APIs (YouTube, TikTok, Twitter/X)
+    try:
+        import urllib.request
+        import json
+
+        url_lower = url.lower()
+        if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
+            oembed_url = f"https://www.youtube.com/oembed?url={quote(url)}&format=json"
+            req = urllib.request.Request(oembed_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                title = data.get('title', '')
+                uploader = data.get('author_name', '')
+                thumbnail_url = data.get('thumbnail_url', '')
+
+        elif 'tiktok.com' in url_lower:
+            oembed_url = f"https://www.tiktok.com/oembed?url={quote(url)}"
+            req = urllib.request.Request(oembed_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                title = data.get('title', '')
+                uploader = data.get('author_name', '')
+                thumbnail_url = data.get('thumbnail_url', '')
+
+        elif 'twitter.com' in url_lower or 'x.com' in url_lower:
+            oembed_url = f"https://publish.twitter.com/oembed?url={quote(url)}"
+            req = urllib.request.Request(oembed_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                title = data.get('author_name', 'مقطع Twitter / X')
+                uploader = data.get('author_name', '')
+    except Exception:
+        pass
+
+    # Strategy 2: yt_dlp extraction for missing info or extra details (duration)
     try:
         import yt_dlp
         opts = {
@@ -1744,57 +1855,98 @@ def api_preview():
             'no_warnings': True,
             'nocheckcertificate': True,
             'skip_download': True,
-            'socket_timeout': 10,
+            'socket_timeout': 5,
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Language': 'ar,en-US,en;q=0.9',
             }
         }
         if cookies_file:
             opts['cookiefile'] = cookies_file
+
         with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            if not info:
-                return jsonify({
-                    'success': True,
-                    'title': 'فيديو جاهز للتحميل المباشر',
-                    'uploader': 'تلقائي',
-                    'duration': 'متعدد الجودات',
-                    'thumbnail': '/logo.png'
-                })
+            if info:
+                if not title:
+                    title = info.get('title', '')
+                if not uploader:
+                    uploader = info.get('uploader', info.get('channel', info.get('uploader_id', info.get('extractor', ''))))
+                if not thumbnail_url:
+                    thumbnail_url = info.get('thumbnail', '')
+                    if not thumbnail_url and 'thumbnails' in info and info['thumbnails']:
+                        thumbnail_url = info['thumbnails'][-1].get('url', '')
+                
+                d_str = info.get('duration_string')
+                d_sec = info.get('duration')
+                if d_str:
+                    duration_str = d_str
+                elif d_sec:
+                    m, s = divmod(int(d_sec), 60)
+                    h, m = divmod(m, 60)
+                    duration_str = f"{h}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
+    except Exception:
+        pass
 
-            duration_str = info.get('duration_string')
-            duration_sec = info.get('duration')
-            if not duration_str and duration_sec:
-                m, s = divmod(int(duration_sec), 60)
-                h, m = divmod(m, 60)
-                duration_str = f"{h}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
+    # Strategy 3: OpenGraph fallback via HTTP request if title or thumbnail is still missing
+    if not title or not thumbnail_url:
+        try:
+            import urllib.request
+            import re
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                html = resp.read().decode('utf-8', errors='ignore')
+                if not title:
+                    m_title = re.search(r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)["\']', html, re.IGNORECASE) or \
+                              re.search(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:title["\']', html, re.IGNORECASE) or \
+                              re.search(r'<title>(.*?)</title>', html, re.IGNORECASE)
+                    if m_title:
+                        title = m_title.group(1).strip()
+                if not thumbnail_url:
+                    m_img = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', html, re.IGNORECASE) or \
+                            re.search(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', html, re.IGNORECASE)
+                    if m_img:
+                        thumbnail_url = m_img.group(1).strip()
+        except Exception:
+            pass
 
-            thumbnail_url = info.get('thumbnail', '')
-            if not thumbnail_url and 'thumbnails' in info and info['thumbnails']:
-                thumbnail_url = info['thumbnails'][-1].get('url', '')
+    # Fallback default values
+    if not title:
+        title = f"فيديو مباشر من {platform_badge}"
+    if not uploader:
+        uploader = "رابط مباشر"
+    if not thumbnail_url:
+        thumbnail_url = "/logo.png"
 
-            formats_list = [
-                {'val': '1', 'label': 'أعلى جودة فيديو (MP4)', 'sub': 'أفضل دقة وجودة فائقة تلقائياً', 'icon': '🌟', 'badge': 'فيديو MP4', 'default': True},
-                {'val': '7', 'label': 'صوت MP3 فقط', sub: '320kbps أعلى نقاء صوتي', 'icon': '🎵', 'badge': 'صوت MP3', 'isAudio': True}
-            ]
+    return {
+        'title': title,
+        'uploader': uploader,
+        'platform': platform_badge,
+        'duration': duration_str or 'جاهز للتحميل',
+        'thumbnail': thumbnail_url
+    }
 
-            return jsonify({
-                'success': True,
-                'title': info.get('title', 'فيديو'),
-                'uploader': info.get('uploader', info.get('extractor', 'عام')),
-                'duration': duration_str or 'غير معروف',
-                'thumbnail': thumbnail_url or '/logo.png',
-                'formats': formats_list
-            })
-    except Exception as e:
-        return jsonify({
-            'success': True,
-            'title': 'فيديو جاهز للتحميل المباشر',
-            'uploader': 'تلقائي',
-            'duration': 'متعدد الجودات',
-            'thumbnail': '/logo.png'
-        })
+
+@app.route('/api/preview')
+def api_preview():
+    url = normalize_url(request.args.get('url', ''))
+    if not url:
+        return jsonify({'success': False, 'error': 'No URL provided'})
+
+    meta = get_real_video_metadata(url)
+    formats_list = [
+        {'val': '1', 'label': 'أعلى جودة فيديو (MP4)', 'sub': 'أفضل دقة وجودة فائقة تلقائياً', 'icon': '🌟', 'badge': 'فيديو MP4', 'default': True},
+        {'val': '7', 'label': 'صوت MP3 فقط', 'sub': '320kbps أعلى نقاء صوتي', 'icon': '🎵', 'badge': 'صوت MP3', 'isAudio': True}
+    ]
+
+    return jsonify({
+        'success': True,
+        'title': meta['title'],
+        'uploader': meta['uploader'],
+        'platform': meta['platform'],
+        'duration': meta['duration'],
+        'thumbnail': meta['thumbnail'],
+        'formats': formats_list
+    })
 
 
 
